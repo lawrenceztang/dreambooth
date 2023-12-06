@@ -15,6 +15,9 @@ import importlib
 import sys
 MAX_IMAGES = 50
 
+training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
+subprocess.run(['wget', "training_script_url"])
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
