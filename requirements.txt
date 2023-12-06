@@ -1,0 +1,5 @@
+transformers
+autotrain-advanced
+python-slugify
+uuid
+torch
