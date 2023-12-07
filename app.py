@@ -3,6 +3,7 @@ from PIL import Image
 import requests
 import subprocess
 from transformers import Blip2Processor, Blip2ForConditionalGeneration
+from huggingface_hub import snapshot_download
 import torch
 import uuid
 import os
@@ -19,6 +20,8 @@ training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/m
 subprocess.run(['wget', training_script_url])
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
+
+FACES_DATASET_PATH = snapshot_download(repo_id="multimodalart/faces-prior-preservation", repo_type="dataset")
 
 processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
 model = Blip2ForConditionalGeneration.from_pretrained(
@@ -72,7 +75,7 @@ def make_options_visible(option):
     )
 def change_defaults(option, images):
     num_images = len(images)
-    max_train_steps = num_images*150
+    max_train_steps = num_images * 150
     max_train_steps = 500 if max_train_steps < 500 else max_train_steps
     random_files = []
     with_prior_preservation = False
@@ -91,7 +94,7 @@ def change_defaults(option, images):
         max_train_steps = num_images*100
         lr_scheduler = "constant"
         #Takes 150 random faces for the prior preservation loss
-        directory = "faces"
+        directory = FACES_DATASET_PATH
         file_count = 150
         files = [os.path.join(directory, file) for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]       
         random_files = random.sample(files, min(len(files), file_count))
