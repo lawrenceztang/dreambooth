@@ -713,6 +713,11 @@ To improve the quality of your outputs, you can add a custom caption for each im
 - (For the training to your you need to have a credit card set up in your account, set it up [here](https://huggingface.co/settings/billing/payment))
             ''')
         token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page")
+    
+    with gr.Group() as no_payment_method:
+        with gr.Row():
+            gr.Markdown("Your Hugging Face account doesn't have a payment method. You need to set it up to train your LoRA")
+            gr.Button("I have set up my payment method")
     start = gr.Button("Start training", visible=False)
     progress_area = gr.HTML("...")
     output_components.insert(1, advanced)
