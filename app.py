@@ -732,7 +732,7 @@ Grab a Hugging Face <b>write</b> token [here](https://huggingface.co/settings/to
     start = gr.Button("Start training", visible=False)
     progress_area = gr.HTML("")
     output_components.insert(1, advanced)
-    output_components.insert(1, start)
+    output_components.insert(1, cost_estimation)
     
     gr.on(
         triggers=[
