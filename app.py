@@ -65,7 +65,7 @@ def load_captioning(uploaded_images, option):
 
 def check_removed_and_restart(images):
     visible = bool(images)
-    return [gr.update(visible=visible) for _ in range(3)]
+    return [gr.update(visible=visible) for _ in range(2)]
 
 def make_options_visible(option):
     if (option == "object") or (option == "face"):
@@ -440,6 +440,19 @@ def run_captioning(*inputs):
         final_captions[index] = final_caption
         yield final_captions
 
+def check_token(token):
+    api = HfApi(token=token)
+    user_data = api.whoami()
+    if (username['auth']['accessToken']['role'] != "write"):
+        gr.Warning("Oops, you've uploaded a `Read` token. We need a Write token!")
+    else:
+        if user_data['canPay']:
+            return gr.update(visible=False), gr.update(visible=True)    
+        else:
+            return gr.update(visible=True), gr.update(visible=False)
+            
+    return gr.update(visible=False), gr.update(visible=False)
+
 with gr.Blocks() as demo:
     dataset_folder = gr.State()
     gr.Markdown("# SDXL LoRA Dreambooth Training")
@@ -708,20 +721,28 @@ To improve the quality of your outputs, you can add a custom caption for each im
                     local_rank = gr.Number(label="local_rank", value=-1)
     with gr.Row():
         with gr.Group():
-            gr.Markdown('''### This training is estimated to cost <b>US$ 3,50</b> with your current settings
-- Get your Hugging Face <b>write</b> token [here](https://huggingface.co/settings/tokens) 
-- (For the training to your you need to have a credit card set up in your account, set it up [here](https://huggingface.co/settings/billing/payment))
+            gr.Markdown('''### This training is estimated to cost <b>< US$ 1,50</b> with your current train settings
+Grab a Hugging Face <b>write</b> token [here](https://huggingface.co/settings/tokens) 
             ''')
         token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page")
-    
     with gr.Group() as no_payment_method:
         with gr.Row():
-            gr.Markdown("Your Hugging Face account doesn't have a payment method. You need to set it up to train your LoRA")
-            gr.Button("I have set up my payment method")
+            gr.Markdown("Your Hugging Face account doesn't have a payment method. Set it up [here](https://huggingface.co/settings/billing/payment) to train your LoRA")
+            payment_setup = gr.Button("I have set up my payment method")
     start = gr.Button("Start training", visible=False)
     progress_area = gr.HTML("...")
     output_components.insert(1, advanced)
     output_components.insert(1, start)
+    
+    gr.on(
+        triggers=[
+            token.change,
+            payment_setup.click
+        ],
+        fn=check_token,
+        inputs=token,
+        outputs=no_payment_method, start
+    )
     use_snr_gamma.change(
         lambda x: gr.update(visible=x),
         inputs=use_snr_gamma,
@@ -767,7 +788,7 @@ To improve the quality of your outputs, you can add a custom caption for each im
     images.change(
         check_removed_and_restart,
         inputs=[images],
-        outputs=[captioning_area, advanced, start],
+        outputs=[captioning_area, advanced],
     )
     training_option.change(
         make_options_visible,
