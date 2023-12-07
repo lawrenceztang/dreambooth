@@ -1,6 +1,6 @@
 ---
-title: Sdxl Lora Trainer
-emoji: 🏃
+title: Dreambooth Ease - SDXL LoRA trainer
+emoji: 🧞
 colorFrom: blue
 colorTo: purple
 sdk: gradio
