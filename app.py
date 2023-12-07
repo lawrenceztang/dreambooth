@@ -290,7 +290,7 @@ git+https://github.com/huggingface/datasets.git'''
     subprocess_command = ["autotrain", "spacerunner", "--project-name", slugged_lora_name, "--script-path", spacerunner_folder, "--username", username, "--token", token, "--backend", "spaces-a10gl", "--env","HF_TOKEN=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;HF_HUB_ENABLE_HF_TRANSFER=1", "--args", spacerunner_args]
     print(subprocess_command)
     subprocess.run(subprocess_command)
-    return f"<h2>Your training has started. Run over to <a href='https://huggingface.co/spaces/{username}/{slugged_lora_name}'>{username}/{slugged_lora_name}</a> to check the status (click the logs tab)</h2>"
+    return f"<h2>Your training has started. Run over to <a href='https://huggingface.co/spaces/{username}/autotrain-{slugged_lora_name}'>{username}/autotrain-{slugged_lora_name}</a> to check the status (click the logs tab)</h2>"
 
 def start_training_og(
     lora_name,
