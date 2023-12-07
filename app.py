@@ -18,15 +18,13 @@ from pathlib import Path
 MAX_IMAGES = 50
 
 training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
-subprocess.run(['wget', training_script_url])
+subprocess.run(['wget', '-N', training_script_url])
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 FACES_DATASET_PATH = snapshot_download(repo_id="multimodalart/faces-prior-preservation", repo_type="dataset")
-
 #Delete .gitattributes to process things properly
 Path(FACES_DATASET_PATH, '.gitattributes').unlink(missing_ok=True)
-
 
 processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
 model = Blip2ForConditionalGeneration.from_pretrained(
@@ -287,11 +285,22 @@ git+https://github.com/huggingface/datasets.git'''
     # The subprocess call for autotrain spacerunner
     api = HfApi(token=token)
     username = api.whoami()["name"]
-    subprocess_command = ["autotrain", "spacerunner", "--project-name", slugged_lora_name, "--script-path", spacerunner_folder, "--username", username, "--token", token, "--backend", "spaces-a10gl", "--env","HF_TOKEN=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;HF_HUB_ENABLE_HF_TRANSFER=1", "--args", spacerunner_args]
+    subprocess_command = ["autotrain", "spacerunner", "--project-name", slugged_lora_name, "--script-path", spacerunner_folder, "--username", username, "--token", token, "--backend", "spaces-a10gs", "--env","HF_TOKEN=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;HF_HUB_ENABLE_HF_TRANSFER=1", "--args", spacerunner_args]
     print(subprocess_command)
     subprocess.run(subprocess_command)
-    return f"<h2>Your training has started. Run over to <a href='https://huggingface.co/spaces/{username}/autotrain-{slugged_lora_name}?logs=container'>{username}/autotrain-{slugged_lora_name}</a> to check the status (click the logs tab)</h2>"
+    return f"""# Your training has started. 
+## - Model page: <a href='https://huggingface.co/{username}/{slugged_lora_name}'>{username}/{slugged_lora_name}</a> <small>(the model will be available when training finishes)</small>
+## - Training Status: <a href='https://huggingface.co/spaces/{username}/autotrain-{slugged_lora_name}?logs=container'>{username}/autotrain-{slugged_lora_name}</a> <small>(in the logs tab)</small>"""
 
+def calculate_price(iterations):
+    seconds_per_iteration = 3.50
+    total_seconds = (iterations * seconds_per_iteration) + 210
+    cost_per_second = 1.05/60/60
+    cost = round(cost_per_second * total_seconds, 2)
+    return f'''To train this LoRA, we will duplicate the space and hook an A10G GPU under the hood.
+## Estimated to cost <b>< US$ {str(cost)}</b> with your current train settings <small>({int(iterations)} iterations at 3.50s/it in Spaces A10G at US$1.05/h)</small>
+#### Grab a <b>write</b> token [here](https://huggingface.co/settings/tokens), enter it below ↓'''
+    
 def start_training_og(
     lora_name,
     training_option,
@@ -443,23 +452,41 @@ def run_captioning(*inputs):
 def check_token(token):
     try:
         api = HfApi(token=token)
-    except Exception as e:
-        gr.Warning("Invalid user token. Make sure to get your Hugging Face")
-    else:
         user_data = api.whoami()
-        if (username['auth']['accessToken']['role'] != "write"):
+    except Exception as e:
+        raise gr.Warning("Invalid user token. Make sure to get your Hugging Face token from the settings page")
+    else:
+        if (user_data['auth']['accessToken']['role'] != "write"):
             gr.Warning("Oops, you've uploaded a `Read` token. You need to use a Write token!")
         else:
             if user_data['canPay']:
                 return gr.update(visible=False), gr.update(visible=True)    
             else:
+                gr.Warning("Your payment methods aren't set up. You gotta set them up to start training")
                 return gr.update(visible=True), gr.update(visible=False)
                 
         return gr.update(visible=False), gr.update(visible=False)
 
-with gr.Blocks() as demo:
+css = '''.gr-group{background-color: transparent}
+.gr-group .hide-container{padding: 1em; background: var(--block-background-fill) !important}
+.gr-group img{object-fit: cover}
+#main_title{text-align:center}
+#main_title h1 {font-size: 2.25rem}
+#main_title h3, #main_title p{margin-top: 0;font-size: 1.25em}
+#training_cost h2{margin-top: 10px;padding: 0.5em;border: 1px solid var(--block-border-color);font-size: 1.25em}
+#training_cost h4{margin-top: 1.25em;margin-bottom: 0}
+#training_cost small{font-weight: normal}
+
+'''
+theme = gr.themes.Monochrome(
+    text_size="lg",
+    font=[gr.themes.GoogleFont('Source Sans Pro'), 'ui-sans-serif', 'system-ui', 'sans-serif'],
+)
+with gr.Blocks(css=css, theme=theme) as demo:
     dataset_folder = gr.State()
-    gr.Markdown("# SDXL LoRA Dreambooth Training")
+    gr.Markdown('''# Dreambooth Ease 🧞‍♂️
+### Train a high quality Dreambooth SDXL LoRA in a breeze ༄, using state-of-the-art techniques
+<small>[blog about the training script](#), [Colab Pro](#), [run locally or in a cloud](#)</small>''', elem_id="main_title")
     lora_name = gr.Textbox(label="The name of your LoRA", placeholder="e.g.: Persian Miniature Painting style, Cat Toy")
     training_option = gr.Radio(
         label="What are you training?", choices=["object", "style", "face", "custom"]
@@ -496,7 +523,7 @@ To improve the quality of your outputs, you can add a custom caption for each im
                         with locals()[f"captioning_row_{i}"]:
                             locals()[f"image_{i}"] = gr.Image(
                                 width=64,
-                                height=64,
+                                height=111,
                                 min_width=64,
                                 interactive=False,
                                 scale=1,
@@ -544,7 +571,6 @@ To improve the quality of your outputs, you can add a custom caption for each im
                     step=0.0000001,
                     value=1.0,  # For prodigy you start high and it will optimize down
                 )
-                train_batch_size = gr.Number(label="Train batch size", value=2)
                 max_train_steps = gr.Number(
                     label="Max train steps", minimum=1, maximum=50000, value=1000
                 )
@@ -589,7 +615,7 @@ To improve the quality of your outputs, you can add a custom caption for each im
                 train_text_encoder_ti = gr.Checkbox(
                     label="Do textual inversion",
                     value=True,
-                    info="Will train a textual inversion embedding together with the LoRA. Increases quality significantly.",
+                    info="Will train a textual inversion embedding together with the LoRA. Increases quality significantly. If untoggled, you can remove the special TOK token from the prompts.",
                 )
                 with gr.Group(visible=True) as pivotal_tuning_params:
                     train_text_encoder_ti_frac = gr.Number(
@@ -633,27 +659,48 @@ To improve the quality of your outputs, you can add a custom caption for each im
         with gr.Accordion(open=False, label="Even more advanced options"):
             with gr.Row():
                 with gr.Column():
-                    num_train_epochs = gr.Number(label="num_train_epochs", value=1)
-                    checkpointing_steps = gr.Number(
-                        label="checkpointing_steps", value=5000
-                    )
-                    prior_loss_weight = gr.Number(label="prior_loss_weight", value=1)
                     gradient_accumulation_steps = gr.Number(
-                        label="gradient_accumulation_steps", value=1
+                        info="If you change this setting, the pricing calculation will be wrong",
+                        label="gradient_accumulation_steps", 
+                        value=1
+                    )
+                    train_batch_size = gr.Number(
+                        info="If you change this setting, the pricing calculation will be wrong",
+                        label="Train batch size",
+                        value=2
+                    )
+                    num_train_epochs = gr.Number(
+                        info="If you change this setting, the pricing calculation will be wrong",
+                        label="num_train_epochs",
+                        value=1
+                    )
+                    checkpointing_steps = gr.Number(
+                        info="How many steps to save intermediate checkpoints",
+                        label="checkpointing_steps",
+                        value=5000
+                    )
+                    prior_loss_weight = gr.Number(
+                        label="prior_loss_weight",
+                        value=1
                     )
                     gradient_checkpointing = gr.Checkbox(
                         label="gradient_checkpointing",
                         info="Whether or not to use gradient checkpointing to save memory at the expense of slower backward pass",
                         value=True,
                     )
-                    enable_xformers_memory_efficient_attention = gr.Checkbox(
-                        label="enable_xformers_memory_efficient_attention"
-                    )
                     adam_beta1 = gr.Number(
-                        label="adam_beta1", value=0.9, minimum=0, maximum=1, step=0.01
+                        label="adam_beta1",
+                        value=0.9,
+                        minimum=0,
+                        maximum=1,
+                        step=0.01
                     )
                     adam_beta2 = gr.Number(
-                        label="adam_beta2", minimum=0, maximum=1, step=0.01, value=0.99
+                        label="adam_beta2",
+                        minimum=0,
+                        maximum=1,
+                        step=0.01,
+                        value=0.99
                     )
                     prodigy_beta3 = gr.Number(
                         label="Prodigy Beta 3",
@@ -685,10 +732,12 @@ To improve the quality of your outputs, you can add a custom caption for each im
                         maximum=1,
                     )
                     prodigy_use_bias_correction = gr.Checkbox(
-                        label="Prodigy Use Bias Correction", value=True
+                        label="Prodigy Use Bias Correction",
+                        value=True
                     )
                     prodigy_safeguard_warmup = gr.Checkbox(
-                        label="Prodigy Safeguard Warmup", value=True
+                        label="Prodigy Safeguard Warmup",
+                        value=True
                     )
                     max_grad_norm = gr.Number(
                         label="Max Grad Norm",
@@ -697,12 +746,18 @@ To improve the quality of your outputs, you can add a custom caption for each im
                         maximum=10,
                         step=0.1,
                     )
+                    enable_xformers_memory_efficient_attention = gr.Checkbox(
+                        label="enable_xformers_memory_efficient_attention"
+                    )
                 with gr.Column():
                     scale_lr = gr.Checkbox(
                         label="Scale learning rate",
                         info="Scale the learning rate by the number of GPUs, gradient accumulation steps, and batch size",
                     )
-                    lr_num_cycles = gr.Number(label="lr_num_cycles", value=1)
+                    lr_num_cycles = gr.Number(
+                        label="lr_num_cycles",
+                        value=1
+                    )
                     lr_scheduler = gr.Dropdown(
                         label="lr_scheduler",
                         choices=[
@@ -716,25 +771,32 @@ To improve the quality of your outputs, you can add a custom caption for each im
                         value="constant",
                     )
                     lr_power = gr.Number(
-                        label="lr_power", value=1.0, minimum=0.1, maximum=10
+                        label="lr_power",
+                        value=1.0,
+                        minimum=0.1,
+                        maximum=10
                     )
-                    lr_warmup_steps = gr.Number(label="lr_warmup_steps", value=0)
+                    lr_warmup_steps = gr.Number(
+                        label="lr_warmup_steps",
+                        value=0
+                    )
                     dataloader_num_workers = gr.Number(
                         label="Dataloader num workers", value=0, minimum=0, maximum=64
                     )
-                    local_rank = gr.Number(label="local_rank", value=-1)
-    with gr.Row(visible=False) as cost_estimation:
-        with gr.Group():
-            gr.Markdown('''### This training is estimated to cost <b>< US$ 1,50</b> with your current train settings
-Grab a Hugging Face <b>write</b> token [here](https://huggingface.co/settings/tokens) 
-            ''')
-        token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page")
+                    local_rank = gr.Number(
+                        label="local_rank",
+                        value=-1
+                    )
+    with gr.Column(visible=False) as cost_estimation:
+        with gr.Group(elem_id="cost_box"):
+            training_cost_estimate = gr.Markdown(elem_id="training_cost")
+            token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page", type="password", placeholder="hf_OhHiThIsIsNoTaReALToKeNGOoDTry")
     with gr.Group(visible=False) as no_payment_method:
         with gr.Row():
-            gr.Markdown("Your Hugging Face account doesn't have a payment method. Set it up [here](https://huggingface.co/settings/billing/payment) to train your LoRA")
+            gr.Markdown("## Your Hugging Face account doesn't have a payment method. Set it up [here](https://huggingface.co/settings/billing/payment) to train your LoRA")
             payment_setup = gr.Button("I have set up my payment method")
-    start = gr.Button("Start training", visible=False)
-    progress_area = gr.HTML("")
+    start = gr.Button("Start training", visible=False, interactive=True)
+    progress_area = gr.Markdown("")
     output_components.insert(1, advanced)
     output_components.insert(1, cost_estimation)
     
@@ -745,13 +807,14 @@ Grab a Hugging Face <b>write</b> token [here](https://huggingface.co/settings/to
         ],
         fn=check_token,
         inputs=token,
-        outputs=[no_payment_method, start]
+        outputs=[no_payment_method, start],
+        queue=False
     )
     use_snr_gamma.change(
         lambda x: gr.update(visible=x),
         inputs=use_snr_gamma,
         outputs=snr_gamma,
-        queue=False,
+        queue=False
     )
     with_prior_preservation.change(
         lambda x: gr.update(visible=x),
@@ -783,26 +846,39 @@ Grab a Hugging Face <b>write</b> token [here](https://huggingface.co/settings/to
         queue=False
     )
     images.upload(
-        load_captioning, inputs=[images, concept_sentence], outputs=output_components
+        load_captioning,
+        inputs=[images, concept_sentence],
+        outputs=output_components,
+        queue=False
     ).then(
         change_defaults,
         inputs=[training_option, images],
-        outputs=[max_train_steps, repeats, lr_scheduler, lora_rank, with_prior_preservation, class_prompt, class_images]
+        outputs=[max_train_steps, repeats, lr_scheduler, lora_rank, with_prior_preservation, class_prompt, class_images],
+        queue=False
     )
     images.change(
         check_removed_and_restart,
         inputs=[images],
         outputs=[captioning_area, advanced, cost_estimation],
+        queue=False
     )
     training_option.change(
         make_options_visible,
         inputs=training_option,
         outputs=[concept_sentence, image_upload],
+        queue=False
+    )
+    max_train_steps.change(
+        calculate_price,
+        inputs=[max_train_steps],
+        outputs=[training_cost_estimate],
+        queue=False
     )
     start.click(
         fn=create_dataset,
         inputs=[images] + caption_list,
-        outputs=dataset_folder
+        outputs=dataset_folder,
+        queue=False
     ).then(
         fn=start_training,
         inputs=[
@@ -856,7 +932,8 @@ Grab a Hugging Face <b>write</b> token [here](https://huggingface.co/settings/to
             dataset_folder,
             token
         ],
-        outputs = progress_area
+        outputs = progress_area,
+        queue=False
     )
 
     do_captioning.click(
