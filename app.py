@@ -441,17 +441,21 @@ def run_captioning(*inputs):
         yield final_captions
 
 def check_token(token):
-    api = HfApi(token=token)
-    user_data = api.whoami()
-    if (username['auth']['accessToken']['role'] != "write"):
-        gr.Warning("Oops, you've uploaded a `Read` token. We need a Write token!")
+    try:
+        api = HfApi(token=token)
+    except Exception as e:
+        gr.Warning("Invalid user token. Make sure to get your Hugging Face")
     else:
-        if user_data['canPay']:
-            return gr.update(visible=False), gr.update(visible=True)    
+        user_data = api.whoami()
+        if (username['auth']['accessToken']['role'] != "write"):
+            gr.Warning("Oops, you've uploaded a `Read` token. You need to use a Write token!")
         else:
-            return gr.update(visible=True), gr.update(visible=False)
-            
-    return gr.update(visible=False), gr.update(visible=False)
+            if user_data['canPay']:
+                return gr.update(visible=False), gr.update(visible=True)    
+            else:
+                return gr.update(visible=True), gr.update(visible=False)
+                
+        return gr.update(visible=False), gr.update(visible=False)
 
 with gr.Blocks() as demo:
     dataset_folder = gr.State()
