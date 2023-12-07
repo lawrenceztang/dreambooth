@@ -484,8 +484,8 @@ theme = gr.themes.Monochrome(
 )
 with gr.Blocks(css=css, theme=theme) as demo:
     dataset_folder = gr.State()
-    gr.Markdown('''# Dreambooth Ease 🧞‍♂️
-### Train a high quality Dreambooth SDXL LoRA in a breeze ༄, using state-of-the-art techniques
+    gr.Markdown('''# LoRA Ease 🧞‍♂️
+### Train a high quality SDXL LoRA in a breeze ༄, with Dreambooth and more state-of-the-art techniques
 <small>[blog about the training script](#), [Colab Pro](#), [run locally or in a cloud](#)</small>''', elem_id="main_title")
     lora_name = gr.Textbox(label="The name of your LoRA", placeholder="e.g.: Persian Miniature Painting style, Cat Toy")
     training_option = gr.Radio(
