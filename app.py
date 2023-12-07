@@ -700,7 +700,7 @@ To improve the quality of your outputs, you can add a custom caption for each im
                         label="Dataloader num workers", value=0, minimum=0, maximum=64
                     )
                     local_rank = gr.Number(label="local_rank", value=-1)
-    token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page.")
+    token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the [settings page](#).")
     start = gr.Button("Start training", visible=False)
     progress_area = gr.HTML()
     output_components.insert(1, advanced)
