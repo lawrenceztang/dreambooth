@@ -14,6 +14,7 @@ from slugify import slugify
 import argparse 
 import importlib
 import sys
+from pathlib import Path
 MAX_IMAGES = 50
 
 training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
@@ -22,6 +23,10 @@ subprocess.run(['wget', training_script_url])
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 FACES_DATASET_PATH = snapshot_download(repo_id="multimodalart/faces-prior-preservation", repo_type="dataset")
+
+#Delete .gitattributes to process things properly
+Path(FACES_DATASET_PATH, '.gitattributes').unlink(missing_ok=True)
+
 
 processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
 model = Blip2ForConditionalGeneration.from_pretrained(
