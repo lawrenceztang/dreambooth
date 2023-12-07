@@ -65,7 +65,7 @@ def load_captioning(uploaded_images, option):
 
 def check_removed_and_restart(images):
     visible = bool(images)
-    return [gr.update(visible=visible) for _ in range(2)]
+    return [gr.update(visible=visible) for _ in range(3)]
 
 def make_options_visible(option):
     if (option == "object") or (option == "face"):
@@ -719,13 +719,13 @@ To improve the quality of your outputs, you can add a custom caption for each im
                         label="Dataloader num workers", value=0, minimum=0, maximum=64
                     )
                     local_rank = gr.Number(label="local_rank", value=-1)
-    with gr.Row():
+    with gr.Row(visible=False) as cost_estimation:
         with gr.Group():
             gr.Markdown('''### This training is estimated to cost <b>< US$ 1,50</b> with your current train settings
 Grab a Hugging Face <b>write</b> token [here](https://huggingface.co/settings/tokens) 
             ''')
         token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page")
-    with gr.Group() as no_payment_method:
+    with gr.Group(visible=False) as no_payment_method:
         with gr.Row():
             gr.Markdown("Your Hugging Face account doesn't have a payment method. Set it up [here](https://huggingface.co/settings/billing/payment) to train your LoRA")
             payment_setup = gr.Button("I have set up my payment method")
@@ -788,7 +788,7 @@ Grab a Hugging Face <b>write</b> token [here](https://huggingface.co/settings/to
     images.change(
         check_removed_and_restart,
         inputs=[images],
-        outputs=[captioning_area, advanced],
+        outputs=[captioning_area, advanced, cost_estimation],
     )
     training_option.change(
         make_options_visible,
