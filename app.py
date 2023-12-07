@@ -31,10 +31,10 @@ model = Blip2ForConditionalGeneration.from_pretrained(
     "Salesforce/blip2-opt-2.7b", device_map={"": 0}, torch_dtype=torch.float16
 )
 #Run first captioning as apparently makes the other ones faster
-pil_image = Image.new('RGB', (512, 512), 'black')
-blip_inputs = processor(images=pil_image, return_tensors="pt").to(device, torch.float16)
-generated_ids = model.generate(**blip_inputs)
-generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
+#pil_image = Image.new('RGB', (512, 512), 'black')
+#blip_inputs = processor(images=pil_image, return_tensors="pt").to(device, torch.float16)
+#generated_ids = model.generate(**blip_inputs)
+#generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
 
 def load_captioning(uploaded_images, option):
     updates = []
