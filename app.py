@@ -706,7 +706,13 @@ To improve the quality of your outputs, you can add a custom caption for each im
                         label="Dataloader num workers", value=0, minimum=0, maximum=64
                     )
                     local_rank = gr.Number(label="local_rank", value=-1)
-    token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the [settings page](#).")
+    with gr.Row():
+        with gr.Group():
+            gr.Markdown('''### This training is estimated to cost <b>US$ 3,50</b> with your current settings
+- Get your Hugging Face <b>write</b> token [here](https://huggingface.co/settings/tokens) 
+- (For the training to your you need to have a credit card set up in your account, set it up [here](https://huggingface.co/settings/billing/payment))
+            ''')
+        token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page")
     start = gr.Button("Start training", visible=False)
     progress_area = gr.HTML("...")
     output_components.insert(1, advanced)
