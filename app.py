@@ -15,6 +15,7 @@ import argparse
 import importlib
 import sys
 from pathlib import Path
+import spaces
 MAX_IMAGES = 50
 
 training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
