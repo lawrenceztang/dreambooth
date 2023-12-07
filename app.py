@@ -31,11 +31,46 @@ processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
 model = Blip2ForConditionalGeneration.from_pretrained(
     "Salesforce/blip2-opt-2.7b", device_map={"": 0}, torch_dtype=torch.float16
 )
-#Run first captioning as apparently makes the other ones faster
-#pil_image = Image.new('RGB', (512, 512), 'black')
-#blip_inputs = processor(images=pil_image, return_tensors="pt").to(device, torch.float16)
-#generated_ids = model.generate(**blip_inputs)
-#generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
+
+training_option_settings = {
+    "face": {
+        "rank": 64,
+        "lr_scheduler": "constant",
+        "with_prior_preservation": True,
+        "class_prompt": "a photo of a person",
+        "train_steps_multiplier": 100,
+        "file_count": 150,
+        "dataset_path": FACES_DATASET_PATH
+    },
+    "style": {
+        "rank": 16,
+        "lr_scheduler": "polynomial",
+        "with_prior_preservation": False,
+        "class_prompt": "",
+        "train_steps_multiplier": 150
+    },
+    "object": {
+        "rank": 8,
+        "lr_scheduler": "constant",
+        "with_prior_preservation": False,
+        "class_prompt": "",
+        "train_steps_multiplier": 150
+    },
+    "custom": {  
+        "rank": 32,
+        "lr_scheduler": "constant",
+        "with_prior_preservation": False,
+        "class_prompt": "",
+        "train_steps_multiplier": 150
+    }
+}
+
+num_images_settings = { 
+    #>24 images, 1 repeat; 10<x<24 images 2 repeats; <10 images 3 repeats
+    "repeats": [(24, 1), (10, 2), (0, 3)],
+    "train_steps_min": 500,
+    "train_steps_max": 2400
+}
 
 def load_captioning(uploaded_images, option):
     updates = []
@@ -77,46 +112,28 @@ def make_options_visible(option):
         gr.update(value=sentence, visible=True),
         gr.update(visible=True),
     )
+    
 def change_defaults(option, images):
+    settings = training_option_settings.get(option, training_option_settings["custom"])
     num_images = len(images)
-    max_train_steps = num_images * 150
-    max_train_steps = 500 if max_train_steps < 500 else max_train_steps
-    random_files = []
-    with_prior_preservation = False
-    class_prompt = ""
-    if(num_images > 24):
-        repeats = 1
-    elif(num_images > 10):
-        repeats = 2
-    else:
-        repeats = 3
-    if(max_train_steps > 2400):
-        max_train_steps = 2400
-        
-    if(option == "face"):
-        rank = 64
-        max_train_steps = num_images*100
-        lr_scheduler = "constant"
-        #Takes 150 random faces for the prior preservation loss
-        directory = FACES_DATASET_PATH
-        file_count = 150
-        files = [os.path.join(directory, file) for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]       
-        random_files = random.sample(files, min(len(files), file_count))
-        with_prior_preservation = True
-        class_prompt = "a photo of a person"
-    elif(option == "style"):
-        rank = 16
-        lr_scheduler = "polynomial"
-    elif(option == "object"):
-        rank = 8
-        repeats = 1
-        lr_scheduler = "constant"
-    else:
-        rank = 32
-        lr_scheduler = "constant"
-        
-    return max_train_steps, repeats, lr_scheduler, rank, with_prior_preservation, class_prompt, random_files
 
+    # Calculate max_train_steps
+    train_steps_multiplier = settings["train_steps_multiplier"]
+    max_train_steps = max(num_images * train_steps_multiplier, num_images_settings["train_steps_min"])
+    max_train_steps = min(max_train_steps, num_images_settings["train_steps_max"])
+
+    # Determine repeats based on number of images
+    repeats = next(repeats for num, repeats in num_images_settings["repeats"] if num_images > num)
+
+    random_files = []
+    if settings["with_prior_preservation"]:
+        directory = settings["dataset_path"]
+        file_count = settings["file_count"]
+        files = [os.path.join(directory, file) for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]
+        random_files = random.sample(files, min(len(files), file_count))
+
+    return max_train_steps, repeats, settings["lr_scheduler"], settings["rank"], settings["with_prior_preservation"], settings["class_prompt"], random_files
+    
 def create_dataset(*inputs):
     print("Creating dataset")
     images = inputs[0]
@@ -300,7 +317,7 @@ def calculate_price(iterations):
     cost = round(cost_per_second * total_seconds, 2)
     return f'''To train this LoRA, we will duplicate the space and hook an A10G GPU under the hood.
 ## Estimated to cost <b>< US$ {str(cost)}</b> with your current train settings <small>({int(iterations)} iterations at 3.50s/it in Spaces A10G at US$1.05/h)</small>
-#### Grab a <b>write</b> token [here](https://huggingface.co/settings/tokens), enter it below ↓'''
+#### To continue, grab you <b>write</b> token [here](https://huggingface.co/settings/tokens) and enter it below ↓'''
     
 def start_training_og(
     lora_name,
@@ -482,7 +499,7 @@ css = '''.gr-group{background-color: transparent}
 
 '''
 theme = gr.themes.Monochrome(
-    text_size="lg",
+    text_size=gr.themes.Size(lg="18px", md="15px", sm="13px", xl="22px", xs="12px", xxl="24px", xxs="9px"),
     font=[gr.themes.GoogleFont('Source Sans Pro'), 'ui-sans-serif', 'system-ui', 'sans-serif'],
 )
 with gr.Blocks(css=css, theme=theme) as demo:
