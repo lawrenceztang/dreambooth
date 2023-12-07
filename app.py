@@ -290,7 +290,7 @@ git+https://github.com/huggingface/datasets.git'''
     subprocess_command = ["autotrain", "spacerunner", "--project-name", slugged_lora_name, "--script-path", spacerunner_folder, "--username", username, "--token", token, "--backend", "spaces-a10gl", "--env","HF_TOKEN=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;HF_HUB_ENABLE_HF_TRANSFER=1", "--args", spacerunner_args]
     print(subprocess_command)
     subprocess.run(subprocess_command)
-    return f"<h2>Your training has started. Run over to <a href='https://huggingface.co/spaces/{username}/autotrain-{slugged_lora_name}'>{username}/autotrain-{slugged_lora_name}</a> to check the status (click the logs tab)</h2>"
+    return f"<h2>Your training has started. Run over to <a href='https://huggingface.co/spaces/{username}/autotrain-{slugged_lora_name}?logs=container'>{username}/autotrain-{slugged_lora_name}</a> to check the status (click the logs tab)</h2>"
 
 def start_training_og(
     lora_name,
@@ -730,7 +730,7 @@ Grab a Hugging Face <b>write</b> token [here](https://huggingface.co/settings/to
             gr.Markdown("Your Hugging Face account doesn't have a payment method. Set it up [here](https://huggingface.co/settings/billing/payment) to train your LoRA")
             payment_setup = gr.Button("I have set up my payment method")
     start = gr.Button("Start training", visible=False)
-    progress_area = gr.HTML("...")
+    progress_area = gr.HTML("")
     output_components.insert(1, advanced)
     output_components.insert(1, start)
     
@@ -741,7 +741,7 @@ Grab a Hugging Face <b>write</b> token [here](https://huggingface.co/settings/to
         ],
         fn=check_token,
         inputs=token,
-        outputs=no_payment_method, start
+        outputs=[no_payment_method, start]
     )
     use_snr_gamma.change(
         lambda x: gr.update(visible=x),
