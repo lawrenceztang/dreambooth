@@ -525,15 +525,15 @@ To improve the quality of your outputs, you can add a custom caption for each im
                         locals()[f"captioning_row_{i}"] = gr.Row(visible=False)
                         with locals()[f"captioning_row_{i}"]:
                             locals()[f"image_{i}"] = gr.Image(
-                                width=64,
+                                width=111,
                                 height=111,
-                                min_width=64,
+                                min_width=111,
                                 interactive=False,
-                                scale=1,
+                                scale=2,
                                 show_label=False,
                             )
                             locals()[f"caption_{i}"] = gr.Textbox(
-                                label=f"Caption {i}", scale=4
+                                label=f"Caption {i}", scale=15
                             )
 
                         output_components.append(locals()[f"captioning_row_{i}"])
