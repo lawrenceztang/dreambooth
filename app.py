@@ -3,7 +3,7 @@ from PIL import Image
 import requests
 import subprocess
 from transformers import Blip2Processor, Blip2ForConditionalGeneration
-from huggingface_hub import snapshot_download
+from huggingface_hub import snapshot_download, HfApi
 import torch
 import uuid
 import os
@@ -114,6 +114,7 @@ def change_defaults(option, images):
     return max_train_steps, repeats, lr_scheduler, rank, with_prior_preservation, class_prompt, random_files
 
 def create_dataset(*inputs):
+    print("Creating dataset")
     images = inputs[0]
     destination_folder = str(uuid.uuid4())
     print(destination_folder)
@@ -186,6 +187,7 @@ def start_training(
     token,
     progress = gr.Progress(track_tqdm=True)
 ): 
+    print("Started training")
     slugged_lora_name = slugify(lora_name)
     spacerunner_folder = str(uuid.uuid4())
     commands = [
@@ -702,7 +704,7 @@ To improve the quality of your outputs, you can add a custom caption for each im
                     local_rank = gr.Number(label="local_rank", value=-1)
     token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the [settings page](#).")
     start = gr.Button("Start training", visible=False)
-    progress_area = gr.HTML()
+    progress_area = gr.HTML("...")
     output_components.insert(1, advanced)
     output_components.insert(1, start)
     use_snr_gamma.change(
