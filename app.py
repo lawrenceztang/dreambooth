@@ -430,7 +430,9 @@ def start_training_og(
     #subprocess.run(commands)
     return "ok!"
 
+@spaces.GPU()
 def run_captioning(*inputs):
+    model.to("cuda")
     print(inputs)
     images = inputs[0]
     training_option = inputs[-1]
