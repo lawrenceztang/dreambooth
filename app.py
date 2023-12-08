@@ -474,15 +474,16 @@ def check_token(token):
         api = HfApi(token=token)
         user_data = api.whoami()
     except Exception as e:
-        raise gr.Info("Invalid user token. Make sure to get your Hugging Face token from the settings page")
+        gr.Warning("Invalid user token. Make sure to get your Hugging Face token from the settings page")
+        return gr.update(visible=False), gr.update(visible=False)
     else:
         if (user_data['auth']['accessToken']['role'] != "write"):
-            gr.Info("Ops, you've uploaded a `Read` token. You need to use a Write token!")
+            gr.Warning("Ops, you've uploaded a `Read` token. You need to use a Write token!")
         else:
             if user_data['canPay']:
                 return gr.update(visible=False), gr.update(visible=True)    
             else:
-                gr.Info("Your payment method isn't set up. You gotta set them up to start training")
+                gr.Warning("Your payment method isn't set up. You gotta it up to start training")
                 return gr.update(visible=True), gr.update(visible=False)
                 
         return gr.update(visible=False), gr.update(visible=False)
