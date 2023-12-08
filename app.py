@@ -43,8 +43,8 @@ training_option_settings = {
         "dataset_path": FACES_DATASET_PATH
     },
     "style": {
-        "rank": 16,
-        "lr_scheduler": "polynomial",
+        "rank": 32,
+        "lr_scheduler": "constant",
         "with_prior_preservation": False,
         "class_prompt": "",
         "train_steps_multiplier": 150
@@ -717,7 +717,7 @@ To improve the quality of your outputs, you can add a custom caption for each im
                         minimum=0,
                         maximum=1,
                         step=0.01,
-                        value=0.99
+                        value=0.999
                     )
                     prodigy_beta3 = gr.Number(
                         label="Prodigy Beta 3",
