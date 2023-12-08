@@ -810,7 +810,7 @@ To improve the quality of your outputs, you can add a custom caption for each im
             token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page", type="password", placeholder="hf_OhHiThIsIsNoTaReALToKeNGOoDTry")
     with gr.Group(visible=False) as no_payment_method:
         with gr.Row():
-            gr.HTML("<h3 style='margin: 0'>Your Hugging Face account doesn't have a payment method set up. Set one up [here](https://huggingface.co/settings/billing/payment) and come back here to train your LoRA</h3>")
+            gr.HTML("<h3 style='margin: 0'>Your Hugging Face account doesn't have a payment method set up. Set one up <a href='https://huggingface.co/settings/billing/payment' target='_blank'>here</a> and come back here to train your LoRA</h3>")
             payment_setup = gr.Button("I have set up a payment method")
     
     start = gr.Button("Start training", visible=False, interactive=True)
