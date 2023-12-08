@@ -1,5 +1,5 @@
 ---
-title: Dreambooth Ease - SDXL LoRA trainer
+title: LoRA Ease
 emoji: 🧞
 colorFrom: blue
 colorTo: purple
