@@ -554,7 +554,7 @@ To improve the quality of your outputs, you can add a custom caption for each im
                         output_components.append(locals()[f"image_{i}"])
                         output_components.append(locals()[f"caption_{i}"])
                         caption_list.append(locals()[f"caption_{i}"])
-    with gr.Accordion(open=False, label="Advanced options", visible=False) as advanced:
+    with gr.Accordion(open=False, label="Advanced options", visible=False, elem_classes=['accordion']) as advanced:
         with gr.Row():
             with gr.Column():
                 optimizer = gr.Dropdown(
@@ -673,7 +673,7 @@ To improve the quality of your outputs, you can add a custom caption for each im
                     value=1024,
                 )
 
-        with gr.Accordion(open=False, label="Even more advanced options"):
+        with gr.Accordion(open=False, label="Even more advanced options", elem_classes=['accordion']):
             with gr.Row():
                 with gr.Column():
                     gradient_accumulation_steps = gr.Number(
