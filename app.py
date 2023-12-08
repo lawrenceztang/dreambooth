@@ -545,6 +545,8 @@ To improve the quality of your outputs, you can add a custom caption for each im
                                 interactive=False,
                                 scale=2,
                                 show_label=False,
+                                show_share_button=False,
+                                show_download_button=False
                             )
                             locals()[f"caption_{i}"] = gr.Textbox(
                                 label=f"Caption {i}", scale=15
