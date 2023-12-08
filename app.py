@@ -510,7 +510,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
     )
     concept_sentence = gr.Textbox(
         label="Concept sentence",
-        info="A common sentence to be used in all images as your captioning structure. TOK is a special mandatory token that will be used to teach the model your concept.",
+        info="Sentence to be used in all images for captioning. TOK is a special mandatory token, used to teach the model your concept.",
         placeholder="e.g.: A photo of TOK, in the style of TOK",
         visible=False,
         interactive=True,
