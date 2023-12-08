@@ -493,7 +493,7 @@ css = '''.gr-group{background-color: transparent}
 #training_cost h2{margin-top: 10px;padding: 0.5em;border: 1px solid var(--block-border-color);font-size: 1.25em}
 #training_cost h4{margin-top: 1.25em;margin-bottom: 0}
 #training_cost small{font-weight: normal}
-
+.accordion {color: var(--body-text-color)}
 '''
 theme = gr.themes.Monochrome(
     text_size=gr.themes.Size(lg="18px", md="15px", sm="13px", xl="22px", xs="12px", xxl="24px", xxs="9px"),
