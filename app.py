@@ -138,7 +138,6 @@ def create_dataset(*inputs):
     print("Creating dataset")
     images = inputs[0]
     destination_folder = str(uuid.uuid4())
-    print(destination_folder)
     if not os.path.exists(destination_folder):
         os.makedirs(destination_folder)
 
@@ -306,9 +305,7 @@ git+https://github.com/huggingface/datasets.git'''
     api = HfApi(token=token)
     username = api.whoami()["name"]
     subprocess_command = ["autotrain", "spacerunner", "--project-name", slugged_lora_name, "--script-path", spacerunner_folder, "--username", username, "--token", token, "--backend", "spaces-a10gs", "--env","HF_TOKEN=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;HF_HUB_ENABLE_HF_TRANSFER=1", "--args", spacerunner_args]
-    print(subprocess_command)
     outcome = subprocess.run(subprocess_command)
-    print(outcome)
     if(outcome.returncode == 0):
         return f"""# Your training has started. 
 ## - Model page: <a href='https://huggingface.co/{username}/{slugged_lora_name}'>{username}/{slugged_lora_name}</a> <small>(the model will be available when training finishes)</small>
@@ -377,7 +374,6 @@ def start_training_og(
     progress = gr.Progress(track_tqdm=True)
 ):
     slugged_lora_name = slugify(lora_name)
-    print(train_text_encoder_ti_frac)
     commands = ["--pretrained_model_name_or_path=stabilityai/stable-diffusion-xl-base-1.0",
             "--pretrained_vae_model_name_or_path=madebyollin/sdxl-vae-fp16-fix",
             f"--instance_prompt={concept_sentence}",
@@ -446,21 +442,16 @@ def start_training_og(
                 shutil.copy(image, class_folder)
             commands.append(f"--class_data_dir={class_folder}")
 
-    print(commands)
     from train_dreambooth_lora_sdxl_advanced import main as train_main, parse_args as parse_train_args
     args = parse_train_args(commands)
     train_main(args)
-    #print(commands)
-    #subprocess.run(commands)
     return "ok!"
 
 @spaces.GPU()
 def run_captioning(*inputs):
     model.to("cuda")
-    print(inputs)
     images = inputs[0]
     training_option = inputs[-1]
-    print(training_option)
     final_captions = [""] * MAX_IMAGES
     for index, image in enumerate(images):
         original_caption = inputs[index + 1]
