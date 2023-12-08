@@ -830,7 +830,7 @@ To improve the quality of your outputs, you can add a custom caption for each im
         fn=check_token,
         inputs=token,
         outputs=[no_payment_method, start],
-        queue=False
+        concurrency_limit=50
     )
     use_snr_gamma.change(
         lambda x: gr.update(visible=x),
