@@ -476,8 +476,9 @@ def check_token(token):
     except Exception as e:
         raise gr.Warning("Invalid user token. Make sure to get your Hugging Face token from the settings page")
     else:
+        print(user_data)
         if (user_data['auth']['accessToken']['role'] != "write"):
-            gr.Warning("Oops, you've uploaded a `Read` token. You need to use a Write token!")
+            gr.Warning("Ops, you've uploaded a `Read` token. You need to use a Write token!")
         else:
             if user_data['canPay']:
                 return gr.update(visible=False), gr.update(visible=True)    
@@ -815,11 +816,12 @@ To improve the quality of your outputs, you can add a custom caption for each im
         with gr.Row():
             gr.Markdown("## Your Hugging Face account doesn't have a payment method. Set it up [here](https://huggingface.co/settings/billing/payment) to train your LoRA")
             payment_setup = gr.Button("I have set up my payment method")
+    
     start = gr.Button("Start training", visible=False, interactive=True)
     progress_area = gr.Markdown("")
+    
     output_components.insert(1, advanced)
     output_components.insert(1, cost_estimation)
-    
     gr.on(
         triggers=[
             token.change,
