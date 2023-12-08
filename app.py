@@ -484,7 +484,7 @@ def check_token(token):
                 
         return gr.update(visible=False), gr.update(visible=False)
 
-css = '''.gr-group{background-color: transparent}
+css = '''.gr-group{background-color: transparent;box-shadow: var(--block-shadow)}
 .gr-group .hide-container{padding: 1em; background: var(--block-background-fill) !important}
 .gr-group img{object-fit: cover}
 #main_title{text-align:center}
