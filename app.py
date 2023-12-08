@@ -478,12 +478,11 @@ def check_token(token):
         return gr.update(visible=False), gr.update(visible=False)
     else:
         if (user_data['auth']['accessToken']['role'] != "write"):
-            gr.Warning("Ops, you've uploaded a `Read` token. You need to use a Write token!")
+            gr.Warning("Ops, you've uploaded a Read token. You need to use a Write token!")
         else:
             if user_data['canPay']:
                 return gr.update(visible=False), gr.update(visible=True)    
             else:
-                gr.Warning("Your payment method isn't set up. You gotta it up to start training")
                 return gr.update(visible=True), gr.update(visible=False)
                 
         return gr.update(visible=False), gr.update(visible=False)
@@ -814,8 +813,8 @@ To improve the quality of your outputs, you can add a custom caption for each im
             token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page", type="password", placeholder="hf_OhHiThIsIsNoTaReALToKeNGOoDTry")
     with gr.Group(visible=False) as no_payment_method:
         with gr.Row():
-            gr.Markdown("## Your Hugging Face account doesn't have a payment method. Set it up [here](https://huggingface.co/settings/billing/payment) to train your LoRA")
-            payment_setup = gr.Button("I have set up my payment method")
+            gr.HTML("<h3 style='margin: 0'>Your Hugging Face account doesn't have a payment method set up. Set one up [here](https://huggingface.co/settings/billing/payment) and come back here to train your LoRA</h3>")
+            payment_setup = gr.Button("I have set up a payment method")
     
     start = gr.Button("Start training", visible=False, interactive=True)
     progress_area = gr.Markdown("")
