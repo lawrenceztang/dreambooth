@@ -209,6 +209,8 @@ def start_training(
     progress = gr.Progress(track_tqdm=True)
 ): 
     print("Started training")
+    if not lora_name:
+        raise gr.Error("You forgot to insert your LoRA name! This name has to be unique.")
     slugged_lora_name = slugify(lora_name)
     spacerunner_folder = str(uuid.uuid4())
     commands = [
@@ -305,10 +307,14 @@ git+https://github.com/huggingface/datasets.git'''
     username = api.whoami()["name"]
     subprocess_command = ["autotrain", "spacerunner", "--project-name", slugged_lora_name, "--script-path", spacerunner_folder, "--username", username, "--token", token, "--backend", "spaces-a10gs", "--env","HF_TOKEN=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;HF_HUB_ENABLE_HF_TRANSFER=1", "--args", spacerunner_args]
     print(subprocess_command)
-    subprocess.run(subprocess_command)
-    return f"""# Your training has started. 
+    outcome = subprocess.run(subprocess_command)
+    print(outcome)
+    if(outcome.returncode == 0):
+        return f"""# Your training has started. 
 ## - Model page: <a href='https://huggingface.co/{username}/{slugged_lora_name}'>{username}/{slugged_lora_name}</a> <small>(the model will be available when training finishes)</small>
 ## - Training Status: <a href='https://huggingface.co/spaces/{username}/autotrain-{slugged_lora_name}?logs=container'>{username}/autotrain-{slugged_lora_name}</a> <small>(in the logs tab)</small>"""
+    else:
+        raise gr.Error("Something went wrong. Make sure the name of your LoRA is unique and try again")
 
 def calculate_price(iterations):
     seconds_per_iteration = 3.50
@@ -507,7 +513,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
     gr.Markdown('''# LoRA Ease 🧞‍♂️
 ### Train a high quality SDXL LoRA in a breeze ༄ with state-of-the-art techniques
 <small>Dreambooth + Pivotal Tuning + Prodigy and more! [blog about the training script](#), [Colab Pro](#), [run locally or in a cloud](#)</small>''', elem_id="main_title")
-    lora_name = gr.Textbox(label="The name of your LoRA", placeholder="e.g.: Persian Miniature Painting style, Cat Toy")
+    lora_name = gr.Textbox(label="The name of your LoRA", info="This has to be a unique name", placeholder="e.g.: Persian Miniature Painting style, Cat Toy")
     training_option = gr.Radio(
         label="What are you training?", choices=["object", "style", "face", "custom"]
     )
