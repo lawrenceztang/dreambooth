@@ -512,7 +512,7 @@ css = '''.gr-group{background-color: transparent;box-shadow: var(--block-shadow)
 #training_cost small{font-weight: normal}
 .accordion {color: var(--body-text-color)}
 .main_unlogged{opacity: 0.5;pointer-events: none}
-.login_logout{width: 100%}
+.login_logout{width: 100% !important}
 #login {font-size: 0px;width: 100% !important;margin: 0 auto}
 #login:after {content: 'Authorize this app to train your model';visibility: visible;display: block;font-size: var(--button-large-text-size)}
 '''
