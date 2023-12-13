@@ -481,11 +481,9 @@ def run_captioning(*inputs):
 
 def check_token(OAuthToken: gr.OAuthToken | None):
     token = OAuthToken.token
-    print(OAuthToken.scope)
     try:
         api = HfApi(token=token)
         user_data = api.whoami()
-        print(user_data)
         print("CanPay", user_data['canPay'])
     except Exception as e:
         gr.Warning("Invalid user token. Make sure to get your Hugging Face token from the settings page")
