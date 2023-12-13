@@ -499,13 +499,13 @@ css = '''.gr-group{background-color: transparent;box-shadow: var(--block-shadow)
 #training_cost h4{margin-top: 1.25em;margin-bottom: 0}
 #training_cost small{font-weight: normal}
 .accordion {color: var(--body-text-color)}
-.main_unlogged{opacity: 0.5, pointer-events: none}
+.main_unlogged{opacity: 0.5;pointer-events: none}
 '''
 theme = gr.themes.Monochrome(
     text_size=gr.themes.Size(lg="18px", md="15px", sm="13px", xl="22px", xs="12px", xxl="24px", xxs="9px"),
     font=[gr.themes.GoogleFont('Source Sans Pro'), 'ui-sans-serif', 'system-ui', 'sans-serif'],
 )
-def swap_opacity(token: gr.OAuthToken):
+def swap_opacity(token: gr.OAuthProfile):
     if token is None:
         return gr.update(elem_classes=["main_unlogged"])
     else:
