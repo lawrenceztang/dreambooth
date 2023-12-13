@@ -843,6 +843,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
         start = gr.Button("Start training", visible=False, interactive=True)
         progress_area = gr.Markdown("")
     
+    gr.LogoutButton()
     output_components.insert(1, advanced)
     output_components.insert(1, cost_estimation)
     gr.on(
