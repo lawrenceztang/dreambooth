@@ -512,6 +512,9 @@ css = '''.gr-group{background-color: transparent;box-shadow: var(--block-shadow)
 #training_cost small{font-weight: normal}
 .accordion {color: var(--body-text-color)}
 .main_unlogged{opacity: 0.5;pointer-events: none}
+.login_logout{width: 100%}
+#login {font-size: 0px;width: 100% !important;margin: 0 auto}
+#login:after {content: 'Authorize this app to train your model';visibility: visible;display: block;font-size: var(--button-large-text-size)}
 '''
 theme = gr.themes.Monochrome(
     text_size=gr.themes.Size(lg="18px", md="15px", sm="13px", xl="22px", xs="12px", xxl="24px", xxs="9px"),
@@ -519,7 +522,7 @@ theme = gr.themes.Monochrome(
 )
 def swap_opacity(token: gr.OAuthToken | None):
     if token is None:
-        return gr.update(elem_classes=["main_unlogged"])
+        return gr.update(elem_classes=["main_unlogged"], elem_id="login")
     else:
         return gr.update(elem_classes=["main_logged"])
 with gr.Blocks(css=css, theme=theme) as demo:
@@ -527,7 +530,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
     gr.Markdown('''# LoRA Ease 🧞‍♂️
 ### Train a high quality SDXL LoRA in a breeze ༄ with state-of-the-art techniques
 <small>Dreambooth with Pivotal Tuning, Prodigy and more! Use the trained LoRAs with diffusers, AUTO1111, Comfy. [blog about the training script](#), [Colab Pro](#), [run locally or in a cloud](#)</small>''', elem_id="main_title")
-    gr.LoginButton()
+    gr.LoginButton(elem_classes=["login_logout"])
     with gr.Column(elem_classes=["main_unlogged"]) as main_ui:
         lora_name = gr.Textbox(label="The name of your LoRA", info="This has to be a unique name", placeholder="e.g.: Persian Miniature Painting style, Cat Toy")
         training_option = gr.Radio(
@@ -843,7 +846,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
         start = gr.Button("Start training", visible=False, interactive=True)
         progress_area = gr.Markdown("")
     
-    gr.LogoutButton()
+    gr.LogoutButton(elem_classes=["login_logout"])
     output_components.insert(1, advanced)
     output_components.insert(1, cost_estimation)
     gr.on(
