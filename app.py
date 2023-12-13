@@ -839,7 +839,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
             payment_setup.click
         ],
         fn=check_token,
-        inputs=token,
+        #inputs=token,
         outputs=[no_payment_method, start],
         concurrency_limit=50
     )
