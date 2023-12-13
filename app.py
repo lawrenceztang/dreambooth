@@ -34,11 +34,11 @@ model = Blip2ForConditionalGeneration.from_pretrained(
 
 training_option_settings = {
     "face": {
-        "rank": 64,
+        "rank": 32,
         "lr_scheduler": "constant",
         "with_prior_preservation": True,
         "class_prompt": "a photo of a person",
-        "train_steps_multiplier": 100,
+        "train_steps_multiplier": 150,
         "file_count": 150,
         "dataset_path": FACES_DATASET_PATH
     },
@@ -49,12 +49,19 @@ training_option_settings = {
         "class_prompt": "",
         "train_steps_multiplier": 150
     },
-    "object": {
-        "rank": 8,
+    "character": {
+        "rank": 32,
         "lr_scheduler": "constant",
         "with_prior_preservation": False,
         "class_prompt": "",
-        "train_steps_multiplier": 150
+        "train_steps_multiplier": 200
+    },
+    "object": {
+        "rank": 16,
+        "lr_scheduler": "constant",
+        "with_prior_preservation": False,
+        "class_prompt": "",
+        "train_steps_multiplier": 50
     },
     "custom": {  
         "rank": 32,
@@ -69,7 +76,7 @@ num_images_settings = {
     #>24 images, 1 repeat; 10<x<24 images 2 repeats; <10 images 3 repeats
     "repeats": [(24, 1), (10, 2), (0, 3)],
     "train_steps_min": 500,
-    "train_steps_max": 2400
+    "train_steps_max": 1500
 }
 
 def load_captioning(uploaded_images, option):
@@ -106,6 +113,8 @@ def make_options_visible(option):
         sentence = "A photo of TOK"
     elif option == "style":
         sentence = "in the style of TOK"
+    elif option == "character":
+        sentence = "A TOK character"
     elif option == "custom":
         sentence = "TOK"
     return (
@@ -522,7 +531,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
     with gr.Column(elem_classes=["main_unlogged"]) as main_ui:
         lora_name = gr.Textbox(label="The name of your LoRA", info="This has to be a unique name", placeholder="e.g.: Persian Miniature Painting style, Cat Toy")
         training_option = gr.Radio(
-            label="What are you training?", choices=["object", "style", "face", "custom"]
+            label="What are you training?", choices=["object", "style", "character", "face", "custom"]
         )
         concept_sentence = gr.Textbox(
             label="Concept sentence",
