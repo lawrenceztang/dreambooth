@@ -324,8 +324,7 @@ def calculate_price(iterations):
     cost_per_second = 1.05/60/60
     cost = round(cost_per_second * total_seconds, 2)
     return f'''To train this LoRA, we will duplicate the space and hook an A10G GPU under the hood.
-## Estimated to cost <b>< US$ {str(cost)}</b> with your current train settings <small>({int(iterations)} iterations at 3.50s/it in Spaces A10G at US$1.05/h)</small>
-#### To continue, grab you <b>write</b> token [here](https://huggingface.co/settings/tokens) and enter it below ↓'''
+## Estimated to cost <b>< US$ {str(cost)}</b> for {round(int(total_seconds)/60, 2)} minutes with your current train settings <small>({int(iterations)} iterations at 3.50s/it)</small>'''
     
 def start_training_og(
     lora_name,
@@ -835,11 +834,10 @@ with gr.Blocks(css=css, theme=theme) as demo:
     output_components.insert(1, cost_estimation)
     gr.on(
         triggers=[
-            #token.change,
+            images.upload,
             payment_setup.click
         ],
         fn=check_token,
-        #inputs=token,
         outputs=[no_payment_method, start],
         concurrency_limit=50
     )
