@@ -523,6 +523,7 @@ def swap_opacity(token: gr.OAuthToken | None):
         return gr.update(elem_classes=["main_unlogged"], elem_id="login")
     else:
         return gr.update(elem_classes=["main_logged"])
+        
 with gr.Blocks(css=css, theme=theme) as demo:
     dataset_folder = gr.State()
     gr.Markdown('''# LoRA Ease 🧞‍♂️
@@ -985,12 +986,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
     do_captioning.click(
         fn=run_captioning, inputs=[images] + caption_list + [training_option], outputs=caption_list
     )
-    demo.load(fn=swap_opacity, outputs=[main_ui], queue=False, concurrency_limit=50).then(
-        fn=check_token,
-        outputs=[no_payment_method, start],
-        concurrency_limit=50,
-        queue=False
-    )
+    demo.load(fn=swap_opacity, outputs=[main_ui], queue=False, concurrency_limit=50)
 if __name__ == "__main__":
     demo.queue()
     demo.launch(share=True)
