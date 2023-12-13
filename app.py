@@ -211,7 +211,7 @@ def start_training(
     if(oauth_token is None):
         raise gr.Error("You aren't logged in!")
     else:
-        token = oauth_token
+        token = oauth_token.token
     if not lora_name:
         raise gr.Error("You forgot to insert your LoRA name! This name has to be unique.")
     print("Started training")
@@ -470,9 +470,8 @@ def run_captioning(*inputs):
         final_captions[index] = final_caption
         yield final_captions
 
-def check_token(token: gr.OAuthToken | None):
-    print("Le Token")
-    print(token)
+def check_token(OAuthToken: gr.OAuthToken | None):
+    token = OAuthToken.token
     try:
         api = HfApi(token=token)
         user_data = api.whoami()
