@@ -205,7 +205,7 @@ def start_training(
     local_rank,
     dataset_folder,
     #token,
-    progress = gr.Progress(track_tqdm=True),
+    progress: gr.Progress(track_tqdm=True),
     oauth_token: gr.OAuthToken | None
 ):
     if(oauth_token is None):
