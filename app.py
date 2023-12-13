@@ -471,6 +471,8 @@ def run_captioning(*inputs):
         yield final_captions
 
 def check_token(token: gr.OAuthToken | None):
+    print("Le Token")
+    print(token)
     try:
         api = HfApi(token=token)
         user_data = api.whoami()
