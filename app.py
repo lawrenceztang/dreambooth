@@ -206,7 +206,7 @@ def start_training(
     dataset_folder,
     #token,
     progress = gr.Progress(track_tqdm=True),
-    oauth_token = gr.OAuthToken
+    oauth_token: gr.OAuthToken | None
 ):
     if(oauth_token is None):
         raise gr.Error("You aren't logged in!")
@@ -471,7 +471,7 @@ def run_captioning(*inputs):
         final_captions[index] = final_caption
         yield final_captions
 
-def check_token(token: gr.OAuthToken):
+def check_token(token: gr.OAuthToken | None):
     try:
         api = HfApi(token=token)
         user_data = api.whoami()
@@ -505,7 +505,7 @@ theme = gr.themes.Monochrome(
     text_size=gr.themes.Size(lg="18px", md="15px", sm="13px", xl="22px", xs="12px", xxl="24px", xxs="9px"),
     font=[gr.themes.GoogleFont('Source Sans Pro'), 'ui-sans-serif', 'system-ui', 'sans-serif'],
 )
-def swap_opacity(token: gr.OAuthProfile):
+def swap_opacity(token: gr.OAuthToken | None):
     if token is None:
         return gr.update(elem_classes=["main_unlogged"])
     else:
