@@ -482,7 +482,7 @@ def check_token(OAuthToken: gr.OAuthToken | None):
         gr.Warning("Invalid user token. Make sure to get your Hugging Face token from the settings page")
         return gr.update(visible=False), gr.update(visible=False)
     else:
-        if ("write_repos" not in OAuthToken.scope):
+        if ("write-repos" not in OAuthToken.scope):
             gr.Warning("Ops, you didn't give Write Repos access")
         else:
             if user_data['canPay']:
