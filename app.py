@@ -472,17 +472,18 @@ def run_captioning(*inputs):
 
 def check_token(OAuthToken: gr.OAuthToken | None):
     token = OAuthToken.token
-    print(OAuthToken)
+    print(OAuthToken.scope)
     try:
         api = HfApi(token=token)
         user_data = api.whoami()
         print(user_data)
+        print("CanPay", user_data['canPay'])
     except Exception as e:
         gr.Warning("Invalid user token. Make sure to get your Hugging Face token from the settings page")
         return gr.update(visible=False), gr.update(visible=False)
     else:
-        if (user_data['auth']['accessToken']['role'] != "write"):
-            gr.Warning("Ops, you've uploaded a Read token. You need to use a Write token!")
+        if ("write_repos" not in OAuthToken.scope):
+            gr.Warning("Ops, you didn't give Write Repos access")
         else:
             if user_data['canPay']:
                 return gr.update(visible=False), gr.update(visible=True)    
