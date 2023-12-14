@@ -304,6 +304,7 @@ def start_training(
     shutil.copy("train_dreambooth_lora_sdxl_advanced.py", f"{spacerunner_folder}/script.py")
     shutil.copytree(dataset_folder, f"{spacerunner_folder}/{dataset_folder}")
     requirements='''-peft
+-huggingface_hub
 torch
 git+https://github.com/huggingface/diffusers@c05d71be04345b18a5120542c363f6e4a3f99b05
 transformers
@@ -311,7 +312,8 @@ accelerate
 safetensors
 prodigyopt
 hf-transfer
-git+https://github.com/huggingface/datasets.git'''
+git+https://github.com/huggingface/datasets.git
+git+https://github.com/huggingface/huggingface_hub.git@8d052492fe0059c606c1a48d7a914b15b64a834d'''
     file_path = f'{spacerunner_folder}/requirements.txt'
     with open(file_path, 'w') as file:
         file.write(requirements)
