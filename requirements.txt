@@ -1,5 +1,6 @@
 transformers
 git+https://github.com/huggingface/autotrain-advanced.git@95dcb3d6637415c9f3a4214ea165cd6841997c23
+git+https://github.com/huggingface/huggingface_hub.git@8d052492fe0059c606c1a48d7a914b15b64a834d
 python-slugify
 uuid
 torch
