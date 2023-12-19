@@ -498,6 +498,10 @@ def check_token(token):
                 
         return gr.update(visible=False), gr.update(visible=False)
 
+def check_if_tok(sentence, textual_inversion):
+    if "TOK" not in sentence and textual_inversion:
+        gr.Warning("⚠️ You've removed the special token TOK from your concept sentence. This will degrade performance as this special token is needed for textual inversion. Use it to describe what you are training.")
+        
 css = '''.gr-group{background-color: transparent;box-shadow: var(--block-shadow)}
 .gr-group .hide-container{padding: 1em; background: var(--block-background-fill) !important}
 .gr-group img{object-fit: cover}
@@ -856,6 +860,11 @@ with gr.Blocks(css=css, theme=theme) as demo:
         inputs=token,
         outputs=[no_payment_method, start],
         concurrency_limit=50
+    )
+    concept_sentence.change(
+        check_if_tok,
+        inputs=[concept_sentence, train_text_encoder_ti],
+        queue=False
     )
     use_snr_gamma.change(
         lambda x: gr.update(visible=x),
