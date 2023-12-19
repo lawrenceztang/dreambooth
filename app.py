@@ -859,18 +859,18 @@ with gr.Blocks(css=css, theme=theme) as demo:
         fn=check_token,
         inputs=token,
         outputs=[no_payment_method, start],
-        concurrency_limit=50
+        concurrency_limit=50,
     )
     concept_sentence.change(
         check_if_tok,
         inputs=[concept_sentence, train_text_encoder_ti],
-        concurrency_limit=50
+        concurrency_limit=50,
     )
     use_snr_gamma.change(
         lambda x: gr.update(visible=x),
         inputs=use_snr_gamma,
         outputs=snr_gamma,
-        queue=False
+        queue=False,
     )
     with_prior_preservation.change(
         lambda x: gr.update(visible=x),
@@ -888,6 +888,10 @@ with gr.Blocks(css=css, theme=theme) as demo:
         inputs=train_text_encoder_ti,
         outputs=text_encoder_train_params,
         queue=False,
+    ).then(
+        lambda x: gr.Warning("As you have disabled Pivotal Tuning, you can remove TOK from your prompts and try to find a unique token for them") if not x else None,
+        inputs=train_text_encoder_ti,
+        concurrency_limit=50,
     )
     train_text_encoder.change(
         lambda x: [gr.update(visible=x), gr.update(visible=x)],
