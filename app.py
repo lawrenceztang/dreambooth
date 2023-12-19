@@ -20,6 +20,8 @@ MAX_IMAGES = 50
 
 training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
 subprocess.run(['wget', '-N', training_script_url])
+orchestrator_script_url = "https://huggingface.co/datasets/multimodalart/lora-ease-helper/raw/main/script.py"
+subprocess.run(['wget', '-N', orchestrator_script_url])
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -266,7 +268,7 @@ def start_training(
         f"dataloader_num_workers={int(dataloader_num_workers)}",
         f"local_rank={int(local_rank)}",
         "cache_latents",
-        "push_to_hub",
+        #"push_to_hub",
     ]
     # Adding optional flags
     if optimizer == "8bitadam":
@@ -301,7 +303,8 @@ def start_training(
     spacerunner_args = ';'.join(commands)
     if not os.path.exists(spacerunner_folder):
         os.makedirs(spacerunner_folder)
-    shutil.copy("train_dreambooth_lora_sdxl_advanced.py", f"{spacerunner_folder}/script.py")
+    shutil.copy("train_dreambooth_lora_sdxl_advanced.py", f"{spacerunner_folder}/trainer.py")
+    shutil.copy("script.py", f"{spacerunner_folder}/script.py")
     shutil.copytree(dataset_folder, f"{spacerunner_folder}/{dataset_folder}")
     requirements='''-peft
 -huggingface_hub
