@@ -215,14 +215,9 @@ def start_training(
     dataloader_num_workers,
     local_rank,
     dataset_folder,
-    #token,
-    oauth_token: gr.OAuthToken | None,
+    token,
     progress = gr.Progress(track_tqdm=True)
 ):
-    if(oauth_token is None):
-        raise gr.Error("You aren't logged in!")
-    else:
-        token = oauth_token.token
     if not lora_name:
         raise gr.Error("You forgot to insert your LoRA name! This name has to be unique.")
     print("Started training")
@@ -338,8 +333,9 @@ def calculate_price(iterations):
     cost_per_second = 1.05/60/60
     cost = round(cost_per_second * total_seconds, 2)
     return f'''To train this LoRA, we will duplicate the space and hook an A10G GPU under the hood.
-## Estimated to cost <b>< US$ {str(cost)}</b> for {round(int(total_seconds)/60, 2)} minutes with your current train settings <small>({int(iterations)} iterations at 3.50s/it)</small>'''
-    
+## Estimated to cost <b>< US$ {str(cost)}</b> for {round(int(total_seconds)/60, 2)} minutes with your current train settings <small>({int(iterations)} iterations at 3.50s/it)</small>
+#### To continue, grab you <b>write</b> token [here](https://huggingface.co/settings/tokens) and enter it below ↓'''
+
 def start_training_og(
     lora_name,
     training_option,
@@ -484,18 +480,16 @@ def run_captioning(*inputs):
         final_captions[index] = final_caption
         yield final_captions
 
-def check_token(OAuthToken: gr.OAuthToken | None):
-    token = OAuthToken.token
+def check_token(token):
     try:
         api = HfApi(token=token)
         user_data = api.whoami()
-        print("CanPay", user_data['canPay'])
     except Exception as e:
         gr.Warning("Invalid user token. Make sure to get your Hugging Face token from the settings page")
         return gr.update(visible=False), gr.update(visible=False)
     else:
-        if ("write-repos" not in OAuthToken.scope):
-            gr.Warning("Ops, you didn't give Write Repos access")
+        if (user_data['auth']['accessToken']['role'] != "write"):
+            gr.Warning("Ops, you've uploaded a Read token. You need to use a Write token!")
         else:
             if user_data['canPay']:
                 return gr.update(visible=False), gr.update(visible=True)    
@@ -523,19 +517,19 @@ theme = gr.themes.Monochrome(
     text_size=gr.themes.Size(lg="18px", md="15px", sm="13px", xl="22px", xs="12px", xxl="24px", xxs="9px"),
     font=[gr.themes.GoogleFont('Source Sans Pro'), 'ui-sans-serif', 'system-ui', 'sans-serif'],
 )
-def swap_opacity(token: gr.OAuthToken | None):
-    if token is None:
-        return gr.update(elem_classes=["main_unlogged"], elem_id="login")
-    else:
-        return gr.update(elem_classes=["main_logged"])
+#def swap_opacity(token: gr.OAuthToken | None):
+#    if token is None:
+#        return gr.update(elem_classes=["main_unlogged"], elem_id="login")
+#    else:
+#        return gr.update(elem_classes=["main_logged"])
         
 with gr.Blocks(css=css, theme=theme) as demo:
     dataset_folder = gr.State()
     gr.Markdown('''# LoRA Ease 🧞‍♂️
 ### Train a high quality SDXL LoRA in a breeze ༄ with state-of-the-art techniques
 <small>Dreambooth with Pivotal Tuning, Prodigy and more! Use the trained LoRAs with diffusers, AUTO1111, Comfy. [blog about the training script](#), [Colab Pro](#), [run locally or in a cloud](#)</small>''', elem_id="main_title")
-    gr.LoginButton(elem_classes=["login_logout"])
-    with gr.Column(elem_classes=["main_unlogged"]) as main_ui:
+    #gr.LoginButton(elem_classes=["login_logout"])
+    with gr.Column(elem_classes=["main_logged"]) as main_ui:
         lora_name = gr.Textbox(label="The name of your LoRA", info="This has to be a unique name", placeholder="e.g.: Persian Miniature Painting style, Cat Toy")
         training_option = gr.Radio(
             label="What are you training?", choices=["object", "style", "character", "face", "custom"]
@@ -841,7 +835,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
         with gr.Column(visible=False) as cost_estimation:
             with gr.Group(elem_id="cost_box"):
                 training_cost_estimate = gr.Markdown(elem_id="training_cost")
-                #token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page", type="password", placeholder="hf_OhHiThIsIsNoTaReALToKeNGOoDTry")
+                token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page", type="password", placeholder="hf_OhHiThIsIsNoTaReALToKeNGOoDTry")
         with gr.Group(visible=False) as no_payment_method:
             with gr.Row():
                 gr.HTML("<h3 style='margin: 0'>Your Hugging Face account doesn't have a payment method set up. Set one up <a href='https://huggingface.co/settings/billing/payment' target='_blank'>here</a> and come back here to train your LoRA</h3>")
@@ -850,15 +844,16 @@ with gr.Blocks(css=css, theme=theme) as demo:
         start = gr.Button("Start training", visible=False, interactive=True)
         progress_area = gr.Markdown("")
     
-    gr.LogoutButton(elem_classes=["login_logout"])
+    #gr.LogoutButton(elem_classes=["login_logout"])
     output_components.insert(1, advanced)
     output_components.insert(1, cost_estimation)
     gr.on(
         triggers=[
-            images.upload,
+            token.change,
             payment_setup.click
         ],
         fn=check_token,
+        inputs=token,
         outputs=[no_payment_method, start],
         concurrency_limit=50
     )
@@ -982,7 +977,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
             dataloader_num_workers,
             local_rank,
             dataset_folder,
-            #token
+            token
         ],
         outputs = progress_area,
         queue=False
@@ -991,7 +986,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
     do_captioning.click(
         fn=run_captioning, inputs=[images] + caption_list + [training_option], outputs=caption_list
     )
-    demo.load(fn=swap_opacity, outputs=[main_ui], queue=False, concurrency_limit=50)
+    #demo.load(fn=swap_opacity, outputs=[main_ui], queue=False, concurrency_limit=50)
 if __name__ == "__main__":
     demo.queue()
     demo.launch(share=True)
