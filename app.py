@@ -294,6 +294,7 @@ def start_training(
                 shutil.copy(image, class_folder)
             commands.append(f"class_data_dir={class_folder}")
             shutil.copytree(class_folder, f"{spacerunner_folder}/{class_folder}")
+    print(commands)
     # Joining the commands with ';' separator for spacerunner format
     spacerunner_args = ';'.join(commands)
     if not os.path.exists(spacerunner_folder):
