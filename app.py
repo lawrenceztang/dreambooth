@@ -311,7 +311,7 @@ def start_training(
 torch
 git+https://github.com/huggingface/diffusers@5b186b712837104b40d095b26ed6a2ec61246cb4
 transformers==4.36.2
-accelerate==0.24.1
+accelerate==0.25.0
 safetensors==0.4.1
 prodigyopt==1.0
 hf-transfer==0.1.4
