@@ -254,9 +254,6 @@ def start_training(
         f"num_train_epochs={int(num_train_epochs)}",
         f"adam_weight_decay={adam_weight_decay}",
         f"adam_epsilon={adam_epsilon}",
-        f"prodigy_decouple={prodigy_decouple}",
-        f"prodigy_use_bias_correction={prodigy_use_bias_correction}",
-        f"prodigy_safeguard_warmup={prodigy_safeguard_warmup}",
         f"max_grad_norm={max_grad_norm}",
         f"lr_num_cycles={int(lr_num_cycles)}",
         f"lr_power={lr_power}",
@@ -282,6 +279,12 @@ def start_training(
         commands.append(f"snr_gamma={snr_gamma}")
     if scale_lr:
         commands.append("scale_lr")
+    if prodigy_decouple:
+        commands.append("prodigy_decouple")
+    if prodigy_use_bias_correction:
+        commands.append("prodigy_use_bias_correction")
+    if prodigy_safeguard_warmup:
+        commands.append("prodigy_safeguard_warmup")
     if with_prior_preservation:
         commands.append("with_prior_preservation")
         commands.append(f"class_prompt={class_prompt}")
