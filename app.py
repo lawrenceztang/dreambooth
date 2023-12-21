@@ -309,7 +309,7 @@ def start_training(
     requirements='''-peft
 -huggingface_hub
 torch
-git+https://github.com/huggingface/diffusers@c05d71be04345b18a5120542c363f6e4a3f99b05
+git+https://github.com/huggingface/diffusers@5b186b712837104b40d095b26ed6a2ec61246cb4
 transformers==4.36.2
 accelerate==0.24.1
 safetensors==0.4.1
