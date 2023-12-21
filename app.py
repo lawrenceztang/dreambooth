@@ -199,9 +199,11 @@ def start_training(
     enable_xformers_memory_efficient_attention,
     adam_beta1,
     adam_beta2,
+    use_prodigy_beta3,
     prodigy_beta3,
     prodigy_decouple,
     adam_weight_decay,
+    use_adam_weight_decay_text_encoder,
     adam_weight_decay_text_encoder,
     adam_epsilon,
     prodigy_use_bias_correction,
@@ -250,9 +252,7 @@ def start_training(
         f"prior_loss_weight={prior_loss_weight}",
         f"num_new_tokens_per_abstraction={int(num_new_tokens_per_abstraction)}",
         f"num_train_epochs={int(num_train_epochs)}",
-        f"prodigy_beta3={prodigy_beta3}",
         f"adam_weight_decay={adam_weight_decay}",
-        f"adam_weight_decay_text_encoder={adam_weight_decay_text_encoder}",
         f"adam_epsilon={adam_epsilon}",
         f"prodigy_decouple={prodigy_decouple}",
         f"prodigy_use_bias_correction={prodigy_use_bias_correction}",
@@ -275,7 +275,7 @@ def start_training(
         commands.append("train_text_encoder_ti")
     elif train_text_encoder:
         commands.append("train_text_encoder")
-        commands.append(f"--train_text_encoder_frac={train_text_encoder_frac}")
+        commands.append(f"train_text_encoder_frac={train_text_encoder_frac}")
     if enable_xformers_memory_efficient_attention: 
         commands.append("enable_xformers_memory_efficient_attention")
     if use_snr_gamma: 
@@ -294,6 +294,10 @@ def start_training(
                 shutil.copy(image, class_folder)
             commands.append(f"class_data_dir={class_folder}")
             shutil.copytree(class_folder, f"{spacerunner_folder}/{class_folder}")
+    if use_prodigy_beta3:
+        commands.append(f"prodigy_beta3={prodigy_beta3}")
+    if use_adam_weight_decay_text_encoder:
+        commands.append(f"adam_weight_decay_text_encoder={adam_weight_decay_text_encoder}")
     print(commands)
     # Joining the commands with ';' separator for spacerunner format
     spacerunner_args = ';'.join(commands)
@@ -752,6 +756,9 @@ with gr.Blocks(css=css, theme=theme) as demo:
                             step=0.01,
                             value=0.999
                         )
+                        use_prodigy_beta3 = gr.Checkbox(
+                            label="Use Prodigy Beta 3?"
+                        )
                         prodigy_beta3 = gr.Number(
                             label="Prodigy Beta 3",
                             value=None,
@@ -759,13 +766,19 @@ with gr.Blocks(css=css, theme=theme) as demo:
                             minimum=0,
                             maximum=1,
                         )
-                        prodigy_decouple = gr.Checkbox(label="Prodigy Decouple")
+                        prodigy_decouple = gr.Checkbox(
+                            label="Prodigy Decouple",
+                            value=True
+                        )
                         adam_weight_decay = gr.Number(
                             label="Adam Weight Decay",
                             value=1e-04,
                             step=0.00001,
                             minimum=0,
                             maximum=1,
+                        )
+                        use_adam_weight_decay_text_encoder = gr.Checkbox(
+                            label="Use Adam Weight Decay Text Encoder"
                         )
                         adam_weight_decay_text_encoder = gr.Number(
                             label="Adam Weight Decay Text Encoder",
@@ -975,9 +988,11 @@ with gr.Blocks(css=css, theme=theme) as demo:
             enable_xformers_memory_efficient_attention,
             adam_beta1,
             adam_beta2,
+            use_prodigy_beta3,
             prodigy_beta3,
             prodigy_decouple,
             adam_weight_decay,
+            use_adam_weight_decay_text_encoder,
             adam_weight_decay_text_encoder,
             adam_epsilon,
             prodigy_use_bias_correction,
