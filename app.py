@@ -18,7 +18,7 @@ from pathlib import Path
 import spaces
 MAX_IMAGES = 50
 
-training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
+training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/add-peft-to-advanced-training-script/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
 subprocess.run(['wget', '-N', training_script_url])
 orchestrator_script_url = "https://huggingface.co/datasets/multimodalart/lora-ease-helper/raw/main/script.py"
 subprocess.run(['wget', '-N', orchestrator_script_url])
@@ -306,7 +306,7 @@ def start_training(
     shutil.copy("train_dreambooth_lora_sdxl_advanced.py", f"{spacerunner_folder}/trainer.py")
     shutil.copy("script.py", f"{spacerunner_folder}/script.py")
     shutil.copytree(dataset_folder, f"{spacerunner_folder}/{dataset_folder}")
-    requirements='''-peft
+    requirements='''peft==0.7.1
 -huggingface_hub
 torch
 git+https://github.com/huggingface/diffusers@5b186b712837104b40d095b26ed6a2ec61246cb4
