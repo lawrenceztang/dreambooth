@@ -16,6 +16,8 @@ import importlib
 import sys
 from pathlib import Path
 import spaces
+import zipfile
+
 MAX_IMAGES = 50
 
 training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/add-peft-to-advanced-training-script/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
@@ -288,12 +290,16 @@ def start_training(
         commands.append(f"num_class_images={int(num_class_images)}")
         if class_images:
             class_folder = str(uuid.uuid4())
-            if not os.path.exists(class_folder):
-                os.makedirs(class_folder)
-            for image in class_images:
-                shutil.copy(image, class_folder)
+            zip_path = os.path.join(spacerunner_folder, class_folder, "class_images.zip")
+        
+            if not os.path.exists(os.path.join(spacerunner_folder, class_folder)):
+                os.makedirs(os.path.join(spacerunner_folder, class_folder))
+        
+            with zipfile.ZipFile(zip_path, 'w') as zipf:
+                for image in class_images:
+                    zipf.write(image, os.path.basename(image))
+            
             commands.append(f"class_data_dir={class_folder}")
-            shutil.copytree(class_folder, f"{spacerunner_folder}/{class_folder}")
     if use_prodigy_beta3:
         commands.append(f"prodigy_beta3={prodigy_beta3}")
     if use_adam_weight_decay_text_encoder:
