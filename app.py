@@ -20,7 +20,7 @@ import zipfile
 
 MAX_IMAGES = 50
 
-training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/add-peft-to-advanced-training-script/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
+training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
 subprocess.run(['wget', '-N', training_script_url])
 orchestrator_script_url = "https://huggingface.co/datasets/multimodalart/lora-ease-helper/raw/main/script.py"
 subprocess.run(['wget', '-N', orchestrator_script_url])
