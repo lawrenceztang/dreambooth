@@ -80,7 +80,7 @@ num_images_settings = {
     #>24 images, 1 repeat; 10<x<24 images 2 repeats; <10 images 3 repeats
     "repeats": [(24, 1), (10, 2), (0, 3)],
     "train_steps_min": 500,
-    "train_steps_max": 1500
+    "train_steps_max": 1300
 }
 
 def load_captioning(uploaded_images, option):
