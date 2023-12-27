@@ -345,7 +345,7 @@ def calculate_price(iterations):
     cost = round(cost_per_second * total_seconds, 2)
     return f'''To train this LoRA, we will duplicate the space and hook an A10G GPU under the hood.
 ## Estimated to cost <b>< US$ {str(cost)}</b> for {round(int(total_seconds)/60, 2)} minutes with your current train settings <small>({int(iterations)} iterations at 3.50s/it)</small>
-#### To continue, grab you <b>write</b> token [here](https://huggingface.co/settings/tokens) and enter it below ↓'''
+#### ↓ to continue, grab you <b>write</b> token [here](https://huggingface.co/settings/tokens) and enter it below ↓'''
 
 def start_training_og(
     lora_name,
