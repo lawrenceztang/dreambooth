@@ -51,14 +51,14 @@ training_option_settings = {
         "lr_scheduler": "constant",
         "with_prior_preservation": False,
         "class_prompt": "",
-        "train_steps_multiplier": 150
+        "train_steps_multiplier": 75
     },
     "character": {
         "rank": 32,
         "lr_scheduler": "constant",
         "with_prior_preservation": False,
         "class_prompt": "",
-        "train_steps_multiplier": 200
+        "train_steps_multiplier": 150
     },
     "object": {
         "rank": 16,
