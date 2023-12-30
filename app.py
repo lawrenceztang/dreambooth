@@ -42,7 +42,7 @@ training_option_settings = {
         "lr_scheduler": "constant",
         "with_prior_preservation": True,
         "class_prompt": "a photo of a person",
-        "train_steps_multiplier": 75,
+        "train_steps_multiplier": 120,
         "file_count": 150,
         "dataset_path": FACES_DATASET_PATH
     },
@@ -58,7 +58,7 @@ training_option_settings = {
         "lr_scheduler": "constant",
         "with_prior_preservation": False,
         "class_prompt": "",
-        "train_steps_multiplier": 150
+        "train_steps_multiplier": 180
     },
     "object": {
         "rank": 16,
