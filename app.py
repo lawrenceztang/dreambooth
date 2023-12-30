@@ -342,7 +342,7 @@ def calculate_price(iterations, with_prior_preservation):
     if(with_prior_preservation):
         seconds_per_iteration = 3.50
     else:
-        seconds_per_iteration = 1.10
+        seconds_per_iteration = 2.00
     total_seconds = (iterations * seconds_per_iteration) + 210
     cost_per_second = 1.05/60/60
     cost = round(cost_per_second * total_seconds, 2)
