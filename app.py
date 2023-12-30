@@ -315,7 +315,7 @@ def start_training(
     requirements='''peft==0.7.1
 -huggingface_hub
 torch
-git+https://github.com/huggingface/diffusers@1622265e131f9fa5154d429de065573605dc2476
+git+https://github.com/huggingface/diffusers@9e1b2710e527fe5e8ed68027315922e3e3ef64af
 transformers==4.36.2
 accelerate==0.25.0
 safetensors==0.4.1
@@ -338,13 +338,16 @@ git+https://github.com/huggingface/huggingface_hub.git@8d052492fe0059c606c1a48d7
     else:
         raise gr.Error("Something went wrong. Make sure the name of your LoRA is unique and try again")
 
-def calculate_price(iterations):
-    seconds_per_iteration = 3.50
+def calculate_price(iterations, with_prior_preservation):
+    if(with_prior_preservation):
+        seconds_per_iteration = 3.50
+    else:
+        seconds_per_iteration = 1.10
     total_seconds = (iterations * seconds_per_iteration) + 210
     cost_per_second = 1.05/60/60
     cost = round(cost_per_second * total_seconds, 2)
     return f'''To train this LoRA, we will duplicate the space and hook an A10G GPU under the hood.
-## Estimated to cost <b>< US$ {str(cost)}</b> for {round(int(total_seconds)/60, 2)} minutes with your current train settings <small>({int(iterations)} iterations at 3.50s/it)</small>
+## Estimated to cost <b>< US$ {str(cost)}</b> for {round(int(total_seconds)/60, 2)} minutes with your current train settings <small>({int(iterations)} iterations at {seconds_per_iteration}s/it)</small>
 #### ↓ to continue, grab you <b>write</b> token [here](https://huggingface.co/settings/tokens) and enter it below ↓'''
 
 def start_training_og(
@@ -950,7 +953,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
     )
     max_train_steps.change(
         calculate_price,
-        inputs=[max_train_steps],
+        inputs=[max_train_steps, with_prior_preservation],
         outputs=[training_cost_estimate],
         queue=False
     )
