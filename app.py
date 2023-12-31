@@ -593,7 +593,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
                                     show_download_button=False
                                 )
                                 locals()[f"caption_{i}"] = gr.Textbox(
-                                    label=f"Caption {i}", scale=15
+                                    label=f"Caption {i}", scale=15, interactive=True
                                 )
     
                             output_components.append(locals()[f"captioning_row_{i}"])
