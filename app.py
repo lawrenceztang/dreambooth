@@ -18,7 +18,7 @@ from pathlib import Path
 import spaces
 import zipfile
 
-MAX_IMAGES = 500
+MAX_IMAGES = 100
 
 training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
 subprocess.run(['wget', '-N', training_script_url])
@@ -85,6 +85,10 @@ num_images_settings = {
 
 def load_captioning(uploaded_images, option):
     updates = []
+    if len(uploaded_images <= 1):
+        raise gr.Error(
+            "Error: please upload at least 2 images to train your model (the ideal number with default settings is between 4-30)"
+        )
     if len(uploaded_images) > MAX_IMAGES:
         raise gr.Error(
             f"Error: for now, only {MAX_IMAGES} or less images are allowed for training"
