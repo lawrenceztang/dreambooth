@@ -479,7 +479,7 @@ def start_training_og(
     train_main(args)
     return "ok!"
 
-@spaces.GPU()
+@spaces.GPU(enable_queue=True)
 def run_captioning(*inputs):
     model.to("cuda")
     images = inputs[0]
