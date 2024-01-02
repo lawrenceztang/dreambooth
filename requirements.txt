@@ -4,3 +4,4 @@ git+https://github.com/huggingface/huggingface_hub.git@8d052492fe0059c606c1a48d7
 python-slugify
 uuid
 torch
+spaces
