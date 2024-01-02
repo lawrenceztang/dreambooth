@@ -937,7 +937,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
         inputs=[images, concept_sentence],
         outputs=output_components,
         queue=False
-    ).then(
+    ).success(
         change_defaults,
         inputs=[training_option, images],
         outputs=[max_train_steps, repeats, lr_scheduler, lora_rank, with_prior_preservation, class_prompt, class_images],
