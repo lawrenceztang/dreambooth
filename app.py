@@ -87,30 +87,31 @@ def load_captioning(uploaded_images, option):
     updates = []
     if len(uploaded_images) <= 1:
         raise gr.Error(
-            "Error: please upload at least 2 images to train your model (the ideal number with default settings is between 4-30)"
+            "Please upload at least 2 images to train your model (the ideal number with default settings is between 4-30)"
         )
-    if len(uploaded_images) > MAX_IMAGES:
+    elif len(uploaded_images) > MAX_IMAGES:
         raise gr.Error(
-            f"Error: for now, only {MAX_IMAGES} or less images are allowed for training"
+            f"For now, only {MAX_IMAGES} or less images are allowed for training"
         )
-    # Update for the captioning_area
-    for _ in range(3):
-        updates.append(gr.update(visible=True))
-    # Update visibility and image for each captioning row and image
-    for i in range(1, MAX_IMAGES + 1):
-        # Determine if the current row and image should be visible
-        visible = i <= len(uploaded_images)
-
-        # Update visibility of the captioning row
-        updates.append(gr.update(visible=visible))
-
-        # Update for image component - display image if available, otherwise hide
-        image_value = uploaded_images[i - 1] if visible else None
-        updates.append(gr.update(value=image_value, visible=visible))
-
-        text_value = option if visible else None
-        updates.append(gr.update(value=text_value, visible=visible))
-    return updates
+    else:
+        # Update for the captioning_area
+        for _ in range(3):
+            updates.append(gr.update(visible=True))
+        # Update visibility and image for each captioning row and image
+        for i in range(1, MAX_IMAGES + 1):
+            # Determine if the current row and image should be visible
+            visible = i <= len(uploaded_images)
+    
+            # Update visibility of the captioning row
+            updates.append(gr.update(visible=visible))
+    
+            # Update for image component - display image if available, otherwise hide
+            image_value = uploaded_images[i - 1] if visible else None
+            updates.append(gr.update(value=image_value, visible=visible))
+    
+            text_value = option if visible else None
+            updates.append(gr.update(value=text_value, visible=visible))
+        return updates
 
 def check_removed_and_restart(images):
     visible = bool(images)
