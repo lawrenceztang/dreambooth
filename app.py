@@ -93,28 +93,27 @@ def load_captioning(uploaded_images, option):
         raise gr.Error(
             f"For now, only {MAX_IMAGES} or less images are allowed for training"
         )
-    else:
-        # Update for the captioning_area
-        for _ in range(3):
-            updates.append(gr.update(visible=True))
-        # Update visibility and image for each captioning row and image
-        for i in range(1, MAX_IMAGES + 1):
-            # Determine if the current row and image should be visible
-            visible = i <= len(uploaded_images)
-    
-            # Update visibility of the captioning row
-            updates.append(gr.update(visible=visible))
-    
-            # Update for image component - display image if available, otherwise hide
-            image_value = uploaded_images[i - 1] if visible else None
-            updates.append(gr.update(value=image_value, visible=visible))
-    
-            text_value = option if visible else None
-            updates.append(gr.update(value=text_value, visible=visible))
-        return updates
+    # Update for the captioning_area
+    for _ in range(3):
+        updates.append(gr.update(visible=True))
+    # Update visibility and image for each captioning row and image
+    for i in range(1, MAX_IMAGES + 1):
+        # Determine if the current row and image should be visible
+        visible = i <= len(uploaded_images)
+
+        # Update visibility of the captioning row
+        updates.append(gr.update(visible=visible))
+
+        # Update for image component - display image if available, otherwise hide
+        image_value = uploaded_images[i - 1] if visible else None
+        updates.append(gr.update(value=image_value, visible=visible))
+
+        text_value = option if visible else None
+        updates.append(gr.update(value=text_value, visible=visible))
+    return updates
 
 def check_removed_and_restart(images):
-    visible = bool(images)
+    visible = len(images) > 1 if images is not None else False
     return [gr.update(visible=visible) for _ in range(3)]
 
 def make_options_visible(option):
