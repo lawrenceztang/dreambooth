@@ -85,7 +85,7 @@ num_images_settings = {
 
 def load_captioning(uploaded_images, option):
     updates = []
-    if len(uploaded_images <= 1):
+    if len(uploaded_images) <= 1:
         raise gr.Error(
             "Error: please upload at least 2 images to train your model (the ideal number with default settings is between 4-30)"
         )
