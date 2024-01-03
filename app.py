@@ -18,7 +18,7 @@ from pathlib import Path
 import spaces
 import zipfile
 
-MAX_IMAGES = 100
+MAX_IMAGES = 150
 
 training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
 subprocess.run(['wget', '-N', training_script_url])
