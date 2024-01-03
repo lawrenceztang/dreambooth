@@ -744,7 +744,8 @@ with gr.Blocks(css=css, theme=theme) as demo:
                         checkpointing_steps = gr.Number(
                             info="How many steps to save intermediate checkpoints",
                             label="checkpointing_steps",
-                            value=5000
+                            value=100000,
+                            visible=False #hack to not let users break this for now
                         )
                         prior_loss_weight = gr.Number(
                             label="prior_loss_weight",
