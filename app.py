@@ -325,8 +325,8 @@ accelerate==0.25.0
 safetensors==0.4.1
 prodigyopt==1.0
 hf-transfer==0.1.4
-git+https://github.com/huggingface/datasets.git@3f149204a2a5948287adcade5e90707aa5207a92
-git+https://github.com/huggingface/huggingface_hub.git@8d052492fe0059c606c1a48d7a914b15b64a834d'''
+huggingface_hub==0.20.3
+git+https://github.com/huggingface/datasets.git@3f149204a2a5948287adcade5e90707aa5207a92'''
     file_path = f'{spacerunner_folder}/requirements.txt'
     with open(file_path, 'w') as file:
         file.write(requirements)
