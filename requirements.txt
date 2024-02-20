@@ -1,5 +1,5 @@
 transformers
-autotrain-advanced==0.6.93
+autotrain-advanced
 git+https://github.com/huggingface/huggingface_hub.git@8d052492fe0059c606c1a48d7a914b15b64a834d
 python-slugify
 uuid
