@@ -333,7 +333,7 @@ git+https://github.com/huggingface/datasets.git@3f149204a2a5948287adcade5e90707a
     # The subprocess call for autotrain spacerunner
     api = HfApi(token=token)
     username = api.whoami()["name"]
-    subprocess_command = ["autotrain", "spacerunner", "--project-name", slugged_lora_name, "--script-path", spacerunner_folder, "--username", username, "--token", token, "--backend", "spaces-a10gs", "--env",f"HF_TOKEN={token};HF_HUB_ENABLE_HF_TRANSFER=1", "--args", spacerunner_args]
+    subprocess_command = ["autotrain", "spacerunner", "--project-name", slugged_lora_name, "--script-path", spacerunner_folder, "--username", username, "--token", token, "--backend", "spaces-a10g-small", "--env",f"HF_TOKEN={token};HF_HUB_ENABLE_HF_TRANSFER=1", "--args", spacerunner_args]
     outcome = subprocess.run(subprocess_command)
     if(outcome.returncode == 0):
         return f"""# Your training has started. 
