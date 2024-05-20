@@ -340,7 +340,7 @@ git+https://github.com/huggingface/datasets.git@3f149204a2a5948287adcade5e90707a
 ## - Training Status: <a href='https://huggingface.co/spaces/{username}/autotrain-{slugged_lora_name}?logs=container'>{username}/autotrain-{slugged_lora_name}</a> <small>(in the logs tab)</small>
 ## - Model page: <a href='https://huggingface.co/{username}/{slugged_lora_name}'>{username}/{slugged_lora_name}</a> <small>(will be available when training finishes)</small>"""
     else:
-        raise gr.Error("Something went wrong. Make sure the name of your LoRA is unique and try again")
+        raise gr.Error("Something went wrong. Make sure the name of your LoRA is unique and try again. Error: ", outcome.stderr)
 
 def calculate_price(iterations, with_prior_preservation):
     if(with_prior_preservation):
