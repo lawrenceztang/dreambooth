@@ -7,7 +7,7 @@ hf-transfer
 huggingface-hub
 datasets==2.20.0
 peft==0.11.1
-autotrain-advanced==0.7.97
+autotrain-advanced==0.7.129
 python-slugify
 uuid
 torch
