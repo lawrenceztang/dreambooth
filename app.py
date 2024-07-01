@@ -20,6 +20,8 @@ import zipfile
 
 MAX_IMAGES = 150
 
+is_spaces = True if os.environ.get('SPACE_ID') else False
+
 training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/ba28006f8b2a0f7ec3b6784695790422b4f80a97/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
 subprocess.run(['wget', '-N', training_script_url])
 orchestrator_script_url = "https://huggingface.co/datasets/multimodalart/lora-ease-helper/raw/main/script.py"
@@ -114,7 +116,17 @@ def load_captioning(uploaded_images, option):
 
 def check_removed_and_restart(images):
     visible = len(images) > 1 if images is not None else False
-    return [gr.update(visible=visible) for _ in range(3)]
+    if(is_spaces):
+        captioning_area = gr.update(visible=visible)
+        advanced = gr.update(visible=visible)
+        cost_estimation = gr.update(visible=visible)
+        start = gr.update(visible=False)
+    else:
+        captioning_area = gr.update(visible=visible)
+        advanced = gr.update(visible=visible)
+        cost_estimation = gr.update(visible=False)
+        start = gr.update(visible=True)
+    return captioning_area, advanced,cost_estimation, start
 
 def make_options_visible(option):
     if (option == "object") or (option == "face"):
@@ -388,9 +400,11 @@ def start_training_og(
     enable_xformers_memory_efficient_attention,
     adam_beta1,
     adam_beta2,
+    use_prodigy_beta3,
     prodigy_beta3,
     prodigy_decouple,
     adam_weight_decay,
+    use_adam_weight_decay_text_encoder,
     adam_weight_decay_text_encoder,
     adam_epsilon,
     prodigy_use_bias_correction,
@@ -404,10 +418,14 @@ def start_training_og(
     dataloader_num_workers,
     local_rank,
     dataset_folder,
-    progress = gr.Progress(track_tqdm=True)
+    token,
+    #progress = gr.Progress(track_tqdm=True)
 ):
+    if not lora_name:
+        raise gr.Error("You forgot to insert your LoRA name!")
     slugged_lora_name = slugify(lora_name)
-    commands = ["--pretrained_model_name_or_path=stabilityai/stable-diffusion-xl-base-1.0",
+    commands = [
+            "--pretrained_model_name_or_path=stabilityai/stable-diffusion-xl-base-1.0",
             "--pretrained_vae_model_name_or_path=madebyollin/sdxl-vae-fp16-fix",
             f"--instance_prompt={concept_sentence}",
             f"--dataset_name=./{dataset_folder}",
@@ -433,9 +451,7 @@ def start_training_og(
             f"--prior_loss_weight={prior_loss_weight}",
             f"--num_new_tokens_per_abstraction={int(num_new_tokens_per_abstraction)}",
             f"--num_train_epochs={int(num_train_epochs)}",
-            f"--prodigy_beta3={prodigy_beta3}",
             f"--adam_weight_decay={adam_weight_decay}",
-            f"--adam_weight_decay_text_encoder={adam_weight_decay_text_encoder}",
             f"--adam_epsilon={adam_epsilon}",
             f"--prodigy_decouple={prodigy_decouple}",
             f"--prodigy_use_bias_correction={prodigy_use_bias_correction}",
@@ -474,11 +490,16 @@ def start_training_og(
             for image in class_images:
                 shutil.copy(image, class_folder)
             commands.append(f"--class_data_dir={class_folder}")
-
+    if use_prodigy_beta3:
+        commands.append(f"--prodigy_beta3={prodigy_beta3}")
+    if use_adam_weight_decay_text_encoder:
+        commands.append(f"--adam_weight_decay_text_encoder={adam_weight_decay_text_encoder}")
     from train_dreambooth_lora_sdxl_advanced import main as train_main, parse_args as parse_train_args
     args = parse_train_args(commands)
+    
     train_main(args)
-    return "ok!"
+    
+    return f"Your model has finished training and has been saved to the `{slugged_lora_name}` folder"
 
 @spaces.GPU(enable_queue=True)
 def run_captioning(*inputs):
@@ -948,7 +969,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
     images.change(
         check_removed_and_restart,
         inputs=[images],
-        outputs=[captioning_area, advanced, cost_estimation],
+        outputs=[captioning_area, advanced, cost_estimation, start],
         queue=False
     )
     training_option.change(
@@ -969,7 +990,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
         outputs=dataset_folder,
         queue=False
     ).then(
-        fn=start_training,
+        fn=start_training if is_spaces else start_training_og,
         inputs=[
             lora_name,
             training_option,
