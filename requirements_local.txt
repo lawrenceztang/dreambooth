@@ -1,4 +1,8 @@
 torch
+python-slugify
+uuid
+torch
+torchvision
 peft==0.7.1
 huggingface-hub==0.23.4
 diffusers==0.29.2
