@@ -573,331 +573,351 @@ with gr.Blocks(css=css, theme=theme) as demo:
 ### Train a high quality SDXL LoRA in a breeze ༄ with state-of-the-art techniques and for cheap 
 <small>Dreambooth with Pivotal Tuning, Prodigy and more! Use the trained LoRAs with diffusers, AUTO1111, Comfy. [blog about the training script](https://huggingface.co/blog/sdxl_lora_advanced_script), [Colab Pro](https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/SDXL_Dreambooth_LoRA_advanced_example.ipynb), [run locally or in a cloud](https://github.com/huggingface/diffusers/blob/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py)</small>''', elem_id="main_title")
     #gr.LoginButton(elem_classes=["login_logout"])
-    with gr.Column(elem_classes=["main_logged"]) as main_ui:
-        lora_name = gr.Textbox(label="The name of your LoRA", info="This has to be a unique name", placeholder="e.g.: Persian Miniature Painting style, Cat Toy")
-        training_option = gr.Radio(
-            label="What are you training?", choices=["object", "style", "character", "face", "custom"]
-        )
-        concept_sentence = gr.Textbox(
-            label="Concept sentence",
-            info="Sentence to be used in all images for captioning. TOK is a special mandatory token, used to teach the model your concept.",
-            placeholder="e.g.: A photo of TOK, in the style of TOK",
-            visible=False,
-            interactive=True,
-        )
-        with gr.Group(visible=False) as image_upload:
-            with gr.Row():
-                images = gr.File(
-                    file_types=["image"],
-                    label="Upload your images",
-                    file_count="multiple",
-                    interactive=True,
-                    visible=True,
-                    scale=1,
-                )
-                with gr.Column(scale=3, visible=False) as captioning_area:
-                    with gr.Column():
-                        gr.Markdown(
-                            """# Custom captioning
-    To improve the quality of your outputs, you can add a custom caption for each image, describing exactly what is taking place in each of them. Including TOK is mandatory. You can leave things as is if you don't want to include captioning.
-                                    """
-                        )
-                        do_captioning = gr.Button("Add AI captions with BLIP-2")
-                        output_components = [captioning_area]
-                        caption_list = []
-                        for i in range(1, MAX_IMAGES + 1):
-                            locals()[f"captioning_row_{i}"] = gr.Row(visible=False)
-                            with locals()[f"captioning_row_{i}"]:
-                                locals()[f"image_{i}"] = gr.Image(
-                                    width=111,
-                                    height=111,
-                                    min_width=111,
-                                    interactive=False,
-                                    scale=2,
-                                    show_label=False,
-                                    show_share_button=False,
-                                    show_download_button=False
-                                )
-                                locals()[f"caption_{i}"] = gr.Textbox(
-                                    label=f"Caption {i}", scale=15, interactive=True
-                                )
-    
-                            output_components.append(locals()[f"captioning_row_{i}"])
-                            output_components.append(locals()[f"image_{i}"])
-                            output_components.append(locals()[f"caption_{i}"])
-                            caption_list.append(locals()[f"caption_{i}"])
-        with gr.Accordion(open=False, label="Advanced options", visible=False, elem_classes=['accordion']) as advanced:
-            with gr.Row():
-                with gr.Column():
-                    optimizer = gr.Dropdown(
-                        label="Optimizer",
-                        info="Prodigy is an auto-optimizer and works good by default. If you prefer to set your own learning rates, change it to AdamW. If you don't have enough VRAM to train with AdamW, pick 8-bit Adam.",
-                        choices=[
-                            ("Prodigy", "prodigy"),
-                            ("AdamW", "adamW"),
-                            ("8-bit Adam", "8bitadam"),
-                        ],
-                        value="prodigy",
+    with gr.Tab("Train on Spaces"):
+        with gr.Column(elem_classes=["main_logged"]) as main_ui:
+            lora_name = gr.Textbox(label="The name of your LoRA", info="This has to be a unique name", placeholder="e.g.: Persian Miniature Painting style, Cat Toy")
+            training_option = gr.Radio(
+                label="What are you training?", choices=["object", "style", "character", "face", "custom"]
+            )
+            concept_sentence = gr.Textbox(
+                label="Concept sentence",
+                info="Sentence to be used in all images for captioning. TOK is a special mandatory token, used to teach the model your concept.",
+                placeholder="e.g.: A photo of TOK, in the style of TOK",
+                visible=False,
+                interactive=True,
+            )
+            with gr.Group(visible=False) as image_upload:
+                with gr.Row():
+                    images = gr.File(
+                        file_types=["image"],
+                        label="Upload your images",
+                        file_count="multiple",
                         interactive=True,
+                        visible=True,
+                        scale=1,
                     )
-                    use_snr_gamma = gr.Checkbox(label="Use SNR Gamma")
-                    snr_gamma = gr.Number(
-                        label="snr_gamma",
-                        info="SNR weighting gamma to re-balance the loss",
-                        value=5.000,
-                        step=0.1,
-                        visible=False,
-                    )
-                    mixed_precision = gr.Dropdown(
-                        label="Mixed Precision",
-                        choices=["no", "fp16", "bf16"],
-                        value="bf16",
-                    )
-                    learning_rate = gr.Number(
-                        label="UNet Learning rate",
-                        minimum=0.0,
-                        maximum=10.0,
-                        step=0.0000001,
-                        value=1.0,  # For prodigy you start high and it will optimize down
-                    )
-                    max_train_steps = gr.Number(
-                        label="Max train steps", minimum=1, maximum=50000, value=1000
-                    )
-                    lora_rank = gr.Number(
-                        label="LoRA Rank",
-                        info="Rank for the Low Rank Adaptation (LoRA), a higher rank produces a larger LoRA",
-                        value=8,
-                        step=2,
-                        minimum=2,
-                        maximum=1024,
-                    )
-                    repeats = gr.Number(
-                        label="Repeats",
-                        info="How many times to repeat the training data.",
-                        value=1,
-                        minimum=1,
-                        maximum=200,
-                    )
-                with gr.Column():
-                    with_prior_preservation = gr.Checkbox(
-                        label="Prior preservation loss",
-                        info="Prior preservation helps to ground the model to things that are similar to your concept. Good for faces.",
-                        value=False,
-                    )
-                    with gr.Column(visible=False) as prior_preservation_params:
-                        with gr.Tab("prompt"):
-                            class_prompt = gr.Textbox(
-                                label="Class Prompt",
-                                info="The prompt that will be used to generate your class images",
+                    with gr.Column(scale=3, visible=False) as captioning_area:
+                        with gr.Column():
+                            gr.Markdown(
+                                """# Custom captioning
+To improve the quality of your outputs, you can add a custom caption for each image, describing exactly what is taking place in each of them. Including TOK is mandatory. You can leave things as is if you don't want to include captioning.
+"""
                             )
-    
-                        with gr.Tab("images"):
-                            class_images = gr.File(
-                                file_types=["image"],
-                                label="Upload your images",
-                                file_count="multiple",
-                            )
-                        num_class_images = gr.Number(
-                            label="Number of class images, if there are less images uploaded then the number you put here, additional images will be sampled with Class Prompt",
-                            value=20,
-                        )
-                    train_text_encoder_ti = gr.Checkbox(
-                        label="Do textual inversion",
-                        value=True,
-                        info="Will train a textual inversion embedding together with the LoRA. Increases quality significantly. If untoggled, you can remove the special TOK token from the prompts.",
-                    )
-                    with gr.Group(visible=True) as pivotal_tuning_params:
-                        train_text_encoder_ti_frac = gr.Number(
-                            label="Pivot Textual Inversion",
-                            info="% of epochs to train textual inversion for",
-                            value=0.5,
-                            step=0.1,
-                        )
-                        num_new_tokens_per_abstraction = gr.Number(
-                            label="Tokens to train",
-                            info="Number of tokens to train in the textual inversion",
-                            value=2,
-                            minimum=1,
-                            maximum=1024,
-                            interactive=True,
-                        )
-                    with gr.Group(visible=False) as text_encoder_train_params:
-                        train_text_encoder = gr.Checkbox(
-                            label="Train Text Encoder", value=True
-                        )
-                        train_text_encoder_frac = gr.Number(
-                            label="Pivot Text Encoder",
-                            info="% of epochs to train the text encoder for",
-                            value=0.8,
-                            step=0.1,
-                        )
-                    text_encoder_learning_rate = gr.Number(
-                        label="Text encoder learning rate",
-                        minimum=0.0,
-                        maximum=10.0,
-                        step=0.0000001,
-                        value=1.0,
-                    )
-                    seed = gr.Number(label="Seed", value=42)
-                    resolution = gr.Number(
-                        label="Resolution",
-                        info="Only square sizes are supported for now, the value will be width and height",
-                        value=1024,
-                    )
-    
-            with gr.Accordion(open=False, label="Even more advanced options", elem_classes=['accordion']):
+                            do_captioning = gr.Button("Add AI captions with BLIP-2")
+                            output_components = [captioning_area]
+                            caption_list = []
+                            for i in range(1, MAX_IMAGES + 1):
+                                locals()[f"captioning_row_{i}"] = gr.Row(visible=False)
+                                with locals()[f"captioning_row_{i}"]:
+                                    locals()[f"image_{i}"] = gr.Image(
+                                        width=111,
+                                        height=111,
+                                        min_width=111,
+                                        interactive=False,
+                                        scale=2,
+                                        show_label=False,
+                                        show_share_button=False,
+                                        show_download_button=False
+                                    )
+                                    locals()[f"caption_{i}"] = gr.Textbox(
+                                        label=f"Caption {i}", scale=15, interactive=True
+                                    )
+        
+                                output_components.append(locals()[f"captioning_row_{i}"])
+                                output_components.append(locals()[f"image_{i}"])
+                                output_components.append(locals()[f"caption_{i}"])
+                                caption_list.append(locals()[f"caption_{i}"])
+            with gr.Accordion(open=False, label="Advanced options", visible=False, elem_classes=['accordion']) as advanced:
                 with gr.Row():
                     with gr.Column():
-                        gradient_accumulation_steps = gr.Number(
-                            info="If you change this setting, the pricing calculation will be wrong",
-                            label="gradient_accumulation_steps", 
-                            value=1
+                        optimizer = gr.Dropdown(
+                            label="Optimizer",
+                            info="Prodigy is an auto-optimizer and works good by default. If you prefer to set your own learning rates, change it to AdamW. If you don't have enough VRAM to train with AdamW, pick 8-bit Adam.",
+                            choices=[
+                                ("Prodigy", "prodigy"),
+                                ("AdamW", "adamW"),
+                                ("8-bit Adam", "8bitadam"),
+                            ],
+                            value="prodigy",
+                            interactive=True,
                         )
-                        train_batch_size = gr.Number(
-                            info="If you change this setting, the pricing calculation will be wrong",
-                            label="Train batch size",
-                            value=2
-                        )
-                        num_train_epochs = gr.Number(
-                            info="If you change this setting, the pricing calculation will be wrong",
-                            label="num_train_epochs",
-                            value=1
-                        )
-                        checkpointing_steps = gr.Number(
-                            info="How many steps to save intermediate checkpoints",
-                            label="checkpointing_steps",
-                            value=100000,
-                            visible=False #hack to not let users break this for now
-                        )
-                        prior_loss_weight = gr.Number(
-                            label="prior_loss_weight",
-                            value=1
-                        )
-                        gradient_checkpointing = gr.Checkbox(
-                            label="gradient_checkpointing",
-                            info="Whether or not to use gradient checkpointing to save memory at the expense of slower backward pass",
-                            value=True,
-                        )
-                        adam_beta1 = gr.Number(
-                            label="adam_beta1",
-                            value=0.9,
-                            minimum=0,
-                            maximum=1,
-                            step=0.01
-                        )
-                        adam_beta2 = gr.Number(
-                            label="adam_beta2",
-                            minimum=0,
-                            maximum=1,
-                            step=0.01,
-                            value=0.999
-                        )
-                        use_prodigy_beta3 = gr.Checkbox(
-                            label="Use Prodigy Beta 3?"
-                        )
-                        prodigy_beta3 = gr.Number(
-                            label="Prodigy Beta 3",
-                            value=None,
-                            step=0.01,
-                            minimum=0,
-                            maximum=1,
-                        )
-                        prodigy_decouple = gr.Checkbox(
-                            label="Prodigy Decouple",
-                            value=True
-                        )
-                        adam_weight_decay = gr.Number(
-                            label="Adam Weight Decay",
-                            value=1e-04,
-                            step=0.00001,
-                            minimum=0,
-                            maximum=1,
-                        )
-                        use_adam_weight_decay_text_encoder = gr.Checkbox(
-                            label="Use Adam Weight Decay Text Encoder"
-                        )
-                        adam_weight_decay_text_encoder = gr.Number(
-                            label="Adam Weight Decay Text Encoder",
-                            value=None,
-                            step=0.00001,
-                            minimum=0,
-                            maximum=1,
-                        )
-                        adam_epsilon = gr.Number(
-                            label="Adam Epsilon",
-                            value=1e-08,
-                            step=0.00000001,
-                            minimum=0,
-                            maximum=1,
-                        )
-                        prodigy_use_bias_correction = gr.Checkbox(
-                            label="Prodigy Use Bias Correction",
-                            value=True
-                        )
-                        prodigy_safeguard_warmup = gr.Checkbox(
-                            label="Prodigy Safeguard Warmup",
-                            value=True
-                        )
-                        max_grad_norm = gr.Number(
-                            label="Max Grad Norm",
-                            value=1.0,
-                            minimum=0.1,
-                            maximum=10,
+                        use_snr_gamma = gr.Checkbox(label="Use SNR Gamma")
+                        snr_gamma = gr.Number(
+                            label="snr_gamma",
+                            info="SNR weighting gamma to re-balance the loss",
+                            value=5.000,
                             step=0.1,
+                            visible=False,
                         )
-                        enable_xformers_memory_efficient_attention = gr.Checkbox(
-                            label="enable_xformers_memory_efficient_attention"
+                        mixed_precision = gr.Dropdown(
+                            label="Mixed Precision",
+                            choices=["no", "fp16", "bf16"],
+                            value="bf16",
+                        )
+                        learning_rate = gr.Number(
+                            label="UNet Learning rate",
+                            minimum=0.0,
+                            maximum=10.0,
+                            step=0.0000001,
+                            value=1.0,  # For prodigy you start high and it will optimize down
+                        )
+                        max_train_steps = gr.Number(
+                            label="Max train steps", minimum=1, maximum=50000, value=1000
+                        )
+                        lora_rank = gr.Number(
+                            label="LoRA Rank",
+                            info="Rank for the Low Rank Adaptation (LoRA), a higher rank produces a larger LoRA",
+                            value=8,
+                            step=2,
+                            minimum=2,
+                            maximum=1024,
+                        )
+                        repeats = gr.Number(
+                            label="Repeats",
+                            info="How many times to repeat the training data.",
+                            value=1,
+                            minimum=1,
+                            maximum=200,
                         )
                     with gr.Column():
-                        scale_lr = gr.Checkbox(
-                            label="Scale learning rate",
-                            info="Scale the learning rate by the number of GPUs, gradient accumulation steps, and batch size",
+                        with_prior_preservation = gr.Checkbox(
+                            label="Prior preservation loss",
+                            info="Prior preservation helps to ground the model to things that are similar to your concept. Good for faces.",
+                            value=False,
                         )
-                        lr_num_cycles = gr.Number(
-                            label="lr_num_cycles",
-                            value=1
-                        )
-                        lr_scheduler = gr.Dropdown(
-                            label="lr_scheduler",
-                            choices=[
-                                "linear",
-                                "cosine",
-                                "cosine_with_restarts",
-                                "polynomial",
-                                "constant",
-                                "constant_with_warmup",
-                            ],
-                            value="constant",
-                        )
-                        lr_power = gr.Number(
-                            label="lr_power",
-                            value=1.0,
-                            minimum=0.1,
-                            maximum=10
-                        )
-                        lr_warmup_steps = gr.Number(
-                            label="lr_warmup_steps",
-                            value=0
-                        )
-                        dataloader_num_workers = gr.Number(
-                            label="Dataloader num workers", value=0, minimum=0, maximum=64
-                        )
-                        local_rank = gr.Number(
-                            label="local_rank",
-                            value=-1
-                        )
-        with gr.Column(visible=False) as cost_estimation:
-            with gr.Group(elem_id="cost_box"):
-                training_cost_estimate = gr.Markdown(elem_id="training_cost")
-                token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page", type="password", placeholder="hf_OhHiThIsIsNoTaReALToKeNGOoDTry")
-        with gr.Group(visible=False) as no_payment_method:
-            with gr.Row():
-                gr.HTML("<h3 style='margin: 0'>Your Hugging Face account doesn't have a payment method set up. Set one up <a href='https://huggingface.co/settings/billing/payment' target='_blank'>here</a> and come back here to train your LoRA</h3>")
-                payment_setup = gr.Button("I have set up a payment method")
+                        with gr.Column(visible=False) as prior_preservation_params:
+                            with gr.Tab("prompt"):
+                                class_prompt = gr.Textbox(
+                                    label="Class Prompt",
+                                    info="The prompt that will be used to generate your class images",
+                                )
         
-        start = gr.Button("Start training", visible=False, interactive=True)
-        progress_area = gr.Markdown("")
-    
+                            with gr.Tab("images"):
+                                class_images = gr.File(
+                                    file_types=["image"],
+                                    label="Upload your images",
+                                    file_count="multiple",
+                                )
+                            num_class_images = gr.Number(
+                                label="Number of class images, if there are less images uploaded then the number you put here, additional images will be sampled with Class Prompt",
+                                value=20,
+                            )
+                        train_text_encoder_ti = gr.Checkbox(
+                            label="Do textual inversion",
+                            value=True,
+                            info="Will train a textual inversion embedding together with the LoRA. Increases quality significantly. If untoggled, you can remove the special TOK token from the prompts.",
+                        )
+                        with gr.Group(visible=True) as pivotal_tuning_params:
+                            train_text_encoder_ti_frac = gr.Number(
+                                label="Pivot Textual Inversion",
+                                info="% of epochs to train textual inversion for",
+                                value=0.5,
+                                step=0.1,
+                            )
+                            num_new_tokens_per_abstraction = gr.Number(
+                                label="Tokens to train",
+                                info="Number of tokens to train in the textual inversion",
+                                value=2,
+                                minimum=1,
+                                maximum=1024,
+                                interactive=True,
+                            )
+                        with gr.Group(visible=False) as text_encoder_train_params:
+                            train_text_encoder = gr.Checkbox(
+                                label="Train Text Encoder", value=True
+                            )
+                            train_text_encoder_frac = gr.Number(
+                                label="Pivot Text Encoder",
+                                info="% of epochs to train the text encoder for",
+                                value=0.8,
+                                step=0.1,
+                            )
+                        text_encoder_learning_rate = gr.Number(
+                            label="Text encoder learning rate",
+                            minimum=0.0,
+                            maximum=10.0,
+                            step=0.0000001,
+                            value=1.0,
+                        )
+                        seed = gr.Number(label="Seed", value=42)
+                        resolution = gr.Number(
+                            label="Resolution",
+                            info="Only square sizes are supported for now, the value will be width and height",
+                            value=1024,
+                        )
+        
+                with gr.Accordion(open=False, label="Even more advanced options", elem_classes=['accordion']):
+                    with gr.Row():
+                        with gr.Column():
+                            gradient_accumulation_steps = gr.Number(
+                                info="If you change this setting, the pricing calculation will be wrong",
+                                label="gradient_accumulation_steps", 
+                                value=1
+                            )
+                            train_batch_size = gr.Number(
+                                info="If you change this setting, the pricing calculation will be wrong",
+                                label="Train batch size",
+                                value=2
+                            )
+                            num_train_epochs = gr.Number(
+                                info="If you change this setting, the pricing calculation will be wrong",
+                                label="num_train_epochs",
+                                value=1
+                            )
+                            checkpointing_steps = gr.Number(
+                                info="How many steps to save intermediate checkpoints",
+                                label="checkpointing_steps",
+                                value=100000,
+                                visible=False #hack to not let users break this for now
+                            )
+                            prior_loss_weight = gr.Number(
+                                label="prior_loss_weight",
+                                value=1
+                            )
+                            gradient_checkpointing = gr.Checkbox(
+                                label="gradient_checkpointing",
+                                info="Whether or not to use gradient checkpointing to save memory at the expense of slower backward pass",
+                                value=True,
+                            )
+                            adam_beta1 = gr.Number(
+                                label="adam_beta1",
+                                value=0.9,
+                                minimum=0,
+                                maximum=1,
+                                step=0.01
+                            )
+                            adam_beta2 = gr.Number(
+                                label="adam_beta2",
+                                minimum=0,
+                                maximum=1,
+                                step=0.01,
+                                value=0.999
+                            )
+                            use_prodigy_beta3 = gr.Checkbox(
+                                label="Use Prodigy Beta 3?"
+                            )
+                            prodigy_beta3 = gr.Number(
+                                label="Prodigy Beta 3",
+                                value=None,
+                                step=0.01,
+                                minimum=0,
+                                maximum=1,
+                            )
+                            prodigy_decouple = gr.Checkbox(
+                                label="Prodigy Decouple",
+                                value=True
+                            )
+                            adam_weight_decay = gr.Number(
+                                label="Adam Weight Decay",
+                                value=1e-04,
+                                step=0.00001,
+                                minimum=0,
+                                maximum=1,
+                            )
+                            use_adam_weight_decay_text_encoder = gr.Checkbox(
+                                label="Use Adam Weight Decay Text Encoder"
+                            )
+                            adam_weight_decay_text_encoder = gr.Number(
+                                label="Adam Weight Decay Text Encoder",
+                                value=None,
+                                step=0.00001,
+                                minimum=0,
+                                maximum=1,
+                            )
+                            adam_epsilon = gr.Number(
+                                label="Adam Epsilon",
+                                value=1e-08,
+                                step=0.00000001,
+                                minimum=0,
+                                maximum=1,
+                            )
+                            prodigy_use_bias_correction = gr.Checkbox(
+                                label="Prodigy Use Bias Correction",
+                                value=True
+                            )
+                            prodigy_safeguard_warmup = gr.Checkbox(
+                                label="Prodigy Safeguard Warmup",
+                                value=True
+                            )
+                            max_grad_norm = gr.Number(
+                                label="Max Grad Norm",
+                                value=1.0,
+                                minimum=0.1,
+                                maximum=10,
+                                step=0.1,
+                            )
+                            enable_xformers_memory_efficient_attention = gr.Checkbox(
+                                label="enable_xformers_memory_efficient_attention"
+                            )
+                        with gr.Column():
+                            scale_lr = gr.Checkbox(
+                                label="Scale learning rate",
+                                info="Scale the learning rate by the number of GPUs, gradient accumulation steps, and batch size",
+                            )
+                            lr_num_cycles = gr.Number(
+                                label="lr_num_cycles",
+                                value=1
+                            )
+                            lr_scheduler = gr.Dropdown(
+                                label="lr_scheduler",
+                                choices=[
+                                    "linear",
+                                    "cosine",
+                                    "cosine_with_restarts",
+                                    "polynomial",
+                                    "constant",
+                                    "constant_with_warmup",
+                                ],
+                                value="constant",
+                            )
+                            lr_power = gr.Number(
+                                label="lr_power",
+                                value=1.0,
+                                minimum=0.1,
+                                maximum=10
+                            )
+                            lr_warmup_steps = gr.Number(
+                                label="lr_warmup_steps",
+                                value=0
+                            )
+                            dataloader_num_workers = gr.Number(
+                                label="Dataloader num workers", value=0, minimum=0, maximum=64
+                            )
+                            local_rank = gr.Number(
+                                label="local_rank",
+                                value=-1
+                            )
+            with gr.Column(visible=False) as cost_estimation:
+                with gr.Group(elem_id="cost_box"):
+                    training_cost_estimate = gr.Markdown(elem_id="training_cost")
+                    token = gr.Textbox(label="Your Hugging Face write token", info="A Hugging Face write token you can obtain on the settings page", type="password", placeholder="hf_OhHiThIsIsNoTaReALToKeNGOoDTry")
+            with gr.Group(visible=False) as no_payment_method:
+                with gr.Row():
+                    gr.HTML("<h3 style='margin: 0'>Your Hugging Face account doesn't have a payment method set up. Set one up <a href='https://huggingface.co/settings/billing/payment' target='_blank'>here</a> and come back here to train your LoRA</h3>")
+                    payment_setup = gr.Button("I have set up a payment method")
+            
+            start = gr.Button("Start training", visible=False, interactive=True)
+            progress_area = gr.Markdown("")
+    with gr.Tab("Train locally"):
+        gr.Markdown(f'''To use LoRA Ease locally with a UI, you can clone this repository (yes, HF Spaces are git repos!)
+```bash
+git clone https://huggingface.co/spaces/multimodalart/lora-ease
+```
+
+Install the dependencies in the `requirements_local.txt` with
+
+```bash
+pip install -r requirements_local.txt
+```
+(if you prefer, do it in a venv environment)
+
+Now you can run LoRA Ease locally by doing a simple 
+```py
+python app.py
+```
+
+If you prefer command line, you can run our [training script]({training_script_url}) yourself.
+''')
     #gr.LogoutButton(elem_classes=["login_logout"])
     output_components.insert(1, advanced)
     output_components.insert(1, cost_estimation)
