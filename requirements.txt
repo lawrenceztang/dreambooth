@@ -2,6 +2,7 @@ transformers
 diffusers
 accelerate
 safetensors
+prodigyopt
 autotrain-advanced==0.7.97
 huggingface-hub
 python-slugify
