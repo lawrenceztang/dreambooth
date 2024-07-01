@@ -557,16 +557,12 @@ css = '''.gr-group{background-color: transparent;box-shadow: var(--block-shadow)
 #login {font-size: 0px;width: 100% !important;margin: 0 auto}
 #login:after {content: 'Authorize this app to train your model';visibility: visible;display: block;font-size: var(--button-large-text-size)}
 '''
+
 theme = gr.themes.Monochrome(
     text_size=gr.themes.Size(lg="18px", md="15px", sm="13px", xl="22px", xs="12px", xxl="24px", xxs="9px"),
     font=[gr.themes.GoogleFont('Source Sans Pro'), 'ui-sans-serif', 'system-ui', 'sans-serif'],
 )
-#def swap_opacity(token: gr.OAuthToken | None):
-#    if token is None:
-#        return gr.update(elem_classes=["main_unlogged"], elem_id="login")
-#    else:
-#        return gr.update(elem_classes=["main_logged"])
-        
+
 with gr.Blocks(css=css, theme=theme) as demo:
     dataset_folder = gr.State()
     gr.Markdown('''# LoRA Ease 🧞‍♂️
