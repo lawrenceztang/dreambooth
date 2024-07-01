@@ -4,7 +4,6 @@ accelerate==0.31.0
 safetensors
 prodigyopt
 hf-transfer
-huggingfacehub
 datasets==2.20.0
 peft==0.11.1
 autotrain-advanced==0.7.97
