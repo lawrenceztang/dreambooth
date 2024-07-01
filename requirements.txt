@@ -1,5 +1,5 @@
-transformers
 autotrain-advanced==0.7.97
+transformers
 huggingface-hub
 python-slugify
 uuid
