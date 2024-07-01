@@ -1,8 +1,12 @@
-transformers
-diffusers
-accelerate
+transformers==4.42.3
+diffusers==0.29.2
+accelerate==0.31.0
 safetensors
 prodigyopt
+hf-transfer
+huggingfacehub
+datasets==2.20.0
+peft==0.11.1
 autotrain-advanced==0.7.97
 huggingface-hub
 python-slugify
