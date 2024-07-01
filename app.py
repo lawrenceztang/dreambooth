@@ -556,6 +556,7 @@ css = '''.gr-group{background-color: transparent;box-shadow: var(--block-shadow)
 .login_logout{width: 100% !important}
 #login {font-size: 0px;width: 100% !important;margin: 0 auto}
 #login:after {content: 'Authorize this app to train your model';visibility: visible;display: block;font-size: var(--button-large-text-size)}
+#component-3, component-697{border: 0}
 '''
 
 theme = gr.themes.Monochrome(
