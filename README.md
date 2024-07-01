@@ -4,16 +4,16 @@ emoji: 🧞
 colorFrom: blue
 colorTo: purple
 sdk: gradio
-sdk_version: 4.9.0
+sdk_version: 4.37.2
 app_file: app.py
-pinned: false
+pinned: true
 license: mit
 fullWidth: true
 hf_oauth: true
 hf_oauth_scopes:
- - read-repos
- - write-repos
- - manage-repos
+- read-repos
+- write-repos
+- manage-repos
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
