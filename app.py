@@ -567,7 +567,7 @@ with gr.Blocks(css=css, theme=theme) as demo:
     dataset_folder = gr.State()
     gr.Markdown('''# LoRA Ease 🧞‍♂️
 ### Train a high quality SDXL LoRA in a breeze ༄ with state-of-the-art techniques and for cheap 
-<small>Dreambooth with Pivotal Tuning, Prodigy and more! Use the trained LoRAs with diffusers, AUTO1111, Comfy. [blog about the training script](https://huggingface.co/blog/sdxl_lora_advanced_script), [Colab Pro](https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/SDXL_Dreambooth_LoRA_advanced_example.ipynb), [run locally or in a cloud](https://github.com/huggingface/diffusers/blob/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py)</small>''', elem_id="main_title")
+<small>Dreambooth with Pivotal Tuning, Prodigy and more! Use the trained LoRAs with diffusers, AUTO1111, Comfy. [blog about the training script](https://huggingface.co/blog/sdxl_lora_advanced_script), [Colab Pro](https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/SDXL_Dreambooth_LoRA_advanced_example.ipynb), [run locally or in a cloud](https://github.com/huggingface/diffusers/blob/main/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py)</small>.''', elem_id="main_title")
     #gr.LoginButton(elem_classes=["login_logout"])
     with gr.Tab("Train on Spaces"):
         with gr.Column(elem_classes=["main_logged"]) as main_ui:
