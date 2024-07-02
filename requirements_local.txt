@@ -11,5 +11,4 @@ accelerate==0.31.0
 safetensors==0.4.3
 prodigyopt==1.0
 hf-transfer==0.1.4
-huggingface_hub==0.20.3
 datasets==2.20.0
