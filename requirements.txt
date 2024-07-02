@@ -1,4 +1,5 @@
 autotrain-advanced==0.7.97
+numpy==1.26.4
 transformers
 huggingface-hub
 python-slugify
