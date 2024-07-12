@@ -14,6 +14,7 @@ hf_oauth_scopes:
 - read-repos
 - write-repos
 - manage-repos
+short_description: Train LoRAs with Ease
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
