@@ -2,6 +2,7 @@ import gradio as gr
 from PIL import Image
 import requests
 import subprocess
+import spaces
 from transformers import Blip2Processor, Blip2ForConditionalGeneration
 from huggingface_hub import snapshot_download, HfApi
 import torch
@@ -15,7 +16,6 @@ import argparse
 import importlib
 import sys
 from pathlib import Path
-import spaces
 import zipfile
 
 MAX_IMAGES = 150
