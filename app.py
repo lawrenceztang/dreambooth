@@ -2,12 +2,14 @@ import gradio as gr
 from PIL import Image
 import requests
 import subprocess
-import spaces
+import os
+is_spaces = True if os.environ.get('SPACE_ID') else False
+if(is_spaces):
+    import spaces
 from transformers import Blip2Processor, Blip2ForConditionalGeneration
 from huggingface_hub import snapshot_download, HfApi
 import torch
 import uuid
-import os
 import shutil
 import json
 import random
@@ -19,8 +21,6 @@ from pathlib import Path
 import zipfile
 
 MAX_IMAGES = 150
-
-is_spaces = True if os.environ.get('SPACE_ID') else False
 
 training_script_url = "https://raw.githubusercontent.com/huggingface/diffusers/ba28006f8b2a0f7ec3b6784695790422b4f80a97/examples/advanced_diffusion_training/train_dreambooth_lora_sdxl_advanced.py"
 subprocess.run(['wget', '-N', training_script_url])
@@ -501,7 +501,7 @@ def start_training_og(
     
     return f"Your model has finished training and has been saved to the `{slugged_lora_name}` folder"
 
-@spaces.GPU(enable_queue=True)
+@spaces.GPU()
 def run_captioning(*inputs):
     model.to("cuda")
     images = inputs[0]
@@ -520,6 +520,10 @@ def run_captioning(*inputs):
         final_captions[index] = final_caption
         yield final_captions
 
+if is_spaces:
+    run_captioning = spaces.GPU()(run_captioning)
+
+        
 def check_token(token):
     try:
         api = HfApi(token=token)
