@@ -501,7 +501,6 @@ def start_training_og(
     
     return f"Your model has finished training and has been saved to the `{slugged_lora_name}` folder"
 
-@spaces.GPU()
 def run_captioning(*inputs):
     model.to("cuda")
     images = inputs[0]
