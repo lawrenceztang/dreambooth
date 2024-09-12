@@ -1,4 +1,4 @@
-autotrain-advanced==0.7.97
+autotrain-advanced
 numpy==1.26.4
 transformers
 huggingface-hub
