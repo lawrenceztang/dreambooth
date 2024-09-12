@@ -346,7 +346,7 @@ numpy==1.26.4'''
     # The subprocess call for autotrain spacerunner
     api = HfApi(token=token)
     username = api.whoami()["name"]
-    subprocess_command = ["autotrain", "spacerunner", "--project-name", slugged_lora_name, "--script-path", spacerunner_folder, "--username", username, "--token", token, "--backend", "spaces-a10g-small", "--env",f"HF_TOKEN={token};HF_HUB_ENABLE_HF_TRANSFER=1", "--args", spacerunner_args]
+    subprocess_command = ["autotrain", "spacerunner", "--project-name", slugged_lora_name, "--script-path", spacerunner_folder, "--username", username, "--token", token, "--backend", "spaces-l40sx1", "--env",f"HF_TOKEN={token};HF_HUB_ENABLE_HF_TRANSFER=1", "--args", spacerunner_args]
     outcome = subprocess.run(subprocess_command)
     if(outcome.returncode == 0):
         return f"""# Your training has started. 
@@ -358,13 +358,13 @@ numpy==1.26.4'''
 
 def calculate_price(iterations, with_prior_preservation):
     if(with_prior_preservation):
-        seconds_per_iteration = 3.50
+        seconds_per_iteration = 1.48
     else:
-        seconds_per_iteration = 2.00
+        seconds_per_iteration = 1.25
     total_seconds = (iterations * seconds_per_iteration) + 210
-    cost_per_second = 1.05/60/60
+    cost_per_second = 1.80/60/60
     cost = round(cost_per_second * total_seconds, 2)
-    return f'''To train this LoRA, we will duplicate the space and hook an A10G GPU under the hood.
+    return f'''To train this LoRA, we will duplicate the space and hook an L40S GPU under the hood.
 ## Estimated to cost <b>< US$ {str(cost)}</b> for {round(int(total_seconds)/60, 2)} minutes with your current train settings <small>({int(iterations)} iterations at {seconds_per_iteration}s/it)</small>
 #### ↓ to continue, grab you <b>write</b> token [here](https://huggingface.co/settings/tokens) and enter it below ↓'''
 
