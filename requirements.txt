@@ -1,9 +1,0 @@
-autotrain-advanced
-numpy==1.26.4
-transformers
-huggingface-hub
-python-slugify
-uuid
-torch
-torchvision
-spaces
